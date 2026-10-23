@@ -81,7 +81,10 @@ body.drag .b:not(.slot){pointer-events:none}
 .pool-head{font-size:13px;color:var(--muted);margin-bottom:6px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .pool-head b{color:var(--ink)} .pool-head .w{color:var(--bad)}
 .pool-head button{font:inherit;font-size:13px;border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:999px;padding:4px 12px;cursor:pointer}
-.tiles{display:flex;flex-wrap:wrap;gap:6px}
+.tiles{display:flex;flex-direction:column;gap:8px}
+.tgroup{display:flex;flex-direction:column;gap:4px;padding:6px 8px;border:1px solid #d3d8de;border-radius:8px;background:#fff}
+.tg-name{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.04em}
+.tg-tiles{display:flex;flex-wrap:wrap;gap:6px}
 .tile{font:inherit;font-size:14px;background:#fff;color:var(--ink);border:1px solid #8f98a3;border-radius:6px;padding:5px 10px;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 .tile.sel{background:var(--accent);color:#fff;border-color:var(--accent)}
 .tile.dragging{opacity:.3}
@@ -204,12 +207,12 @@ add(`<g transform="rotate(-8 300 880)">`);rect(272,858,96,62,'#eef1f4','#8f98a3'
 rect(282,900,46,40,'#d5dae0','#7d8794',4,1.5);
 
 /* 起始 outputs */
-doc(565,690,98,98);
-rect(552,828,62,58,'#fff','#8f98a3',2);rect(620,828,64,58,'#fff','#8f98a3',2);rect(640,834,30,22,'#c9b8a8','none',2);
-cards(556,940,4,110,58,'#fff');
-add(`<g>`);[[536,1076,'XS'],[566,1066,'S'],[600,1062,'M'],[634,1068,'L'],[662,1080,'XL']].forEach(([x,y,t],i)=>{add(`<g transform="rotate(${-20+i*10} ${x+22} ${y+30})">`);rect(x,y,44,58,'#fff','#2b5ea8',4,3);add(`<text x="${x+22}" y="${y+36}" font-size="15" text-anchor="middle" font-weight="900" fill="#2b5ea8" font-family="Arial">${t}</text></g>`);});add(`</g>`);
-rect(498,1178,136,82,'#f4f6fa','#8f98a3',3);[[504,1186,'#f6c3c8'],[540,1186,'#cfe0f3'],[576,1186,'#e3f0a8'],[504,1212,'#cfe0f3'],[540,1212,'#e6cde9'],[576,1212,'#f6c3c8'],[504,1236,'#e3f0a8'],[540,1236,'#cfe0f3']].forEach(([x,y,f])=>rect(x,y,30,18,f,'none',2));
-stackBar(652,1165,95);
+doc(565,732,98,98);
+rect(552,868,62,58,'#fff','#8f98a3',2);rect(620,868,64,58,'#fff','#8f98a3',2);rect(640,874,30,22,'#c9b8a8','none',2);
+cards(556,978,4,110,58,'#fff');
+add(`<g>`);[[536,1104,'XS'],[566,1094,'S'],[600,1090,'M'],[634,1096,'L'],[662,1108,'XL']].forEach(([x,y,t],i)=>{add(`<g transform="rotate(${-20+i*10} ${x+22} ${y+30})">`);rect(x,y,44,58,'#fff','#2b5ea8',4,3);add(`<text x="${x+22}" y="${y+36}" font-size="15" text-anchor="middle" font-weight="900" fill="#2b5ea8" font-family="Arial">${t}</text></g>`);});add(`</g>`);
+rect(498,1212,136,82,'#f4f6fa','#8f98a3',3);[[504,1220,'#f6c3c8'],[540,1220,'#cfe0f3'],[576,1220,'#e3f0a8'],[504,1246,'#cfe0f3'],[540,1246,'#e6cde9'],[576,1246,'#f6c3c8'],[504,1270,'#e3f0a8'],[540,1270,'#cfe0f3']].forEach(([x,y,f])=>rect(x,y,30,18,f,'none',2));
+stackBar(652,1199,95);
 
 /* ===== release box ===== */
 add(`<rect x="1148" y="560" width="52" height="16" fill="${C.orange}"/><polygon points="1132,576 1216,576 1174,600" fill="${C.orange}"/>`);
@@ -226,17 +229,17 @@ add(`<rect x="1018" y="640" width="400" height="84" fill="${C.band}" opacity=".9
 ghostChev(1414,650,722,C.orangeHi);
 chevron(1430,650,1586,722,'url(#gOr)',20);
 team(1440,612,['po','member','tester','coach'],.75);
-[[770,872],[796,880],[782,896],[808,862]].forEach(([x,y])=>sticky(x,y));
+[[760,902],[786,908],[812,900],[838,906]].forEach(([x,y])=>sticky(x,y));
 [0,1,2,3,4,5,6].forEach(i=>{add(`<g transform="rotate(${-40+i*12} 945 920)">`);rect(925,852,40,60,'#fff','#555',3,1.5);add(`</g>`);});
 add(`<g transform="rotate(10 955 880)">`);rect(940,852,40,58,'#fff','#222',3,2);add(`<text x="960" y="890" font-size="22" text-anchor="middle" font-weight="900">1</text></g>`);
 add(`<rect x="1058" y="826" width="26" height="12" fill="#f3a7a7"/>`);stackBar(1058,840,82);
-rect(1384,786,72,48,'#f0f2f5','#7d8794',3);person(1412,800,'#3a3f47',.7);rect(1380,830,80,18,'#6b4a33','none',2);
-rect(1466,780,88,58,'#f7f8f9','#7d8794',2);[[1472,786,'#7cc576'],[1490,786,'#f2e35a'],[1508,786,'#f2e35a'],[1528,786,'#e85b52'],[1472,808,'#f2e35a'],[1490,808,'#f2e35a'],[1528,808,'#f2e35a']].forEach(([x,y,f])=>rect(x,y,14,16,f,'none',1));
+rect(1384,790,72,44,'#f0f2f5','#7d8794',3);person(1412,802,'#3a3f47',.65);rect(1380,830,80,16,'#6b4a33','none',2);
+rect(1466,790,88,54,'#f7f8f9','#7d8794',2);[[1472,796,'#7cc576'],[1490,796,'#f2e35a'],[1508,796,'#f2e35a'],[1528,796,'#e85b52'],[1472,818,'#f2e35a'],[1490,818,'#f2e35a'],[1528,818,'#f2e35a']].forEach(([x,y,f])=>rect(x,y,14,16,f,'none',1));
 quad(1452,880);
 add(`<path d="M1562 920 H1582 V728" fill="none" stroke="${C.red}" stroke-width="6" marker-end="url(#ah-9c2f2f)"/>`);
 /* 結束 pictures */
-rect(1640,640,124,100,'#f3f5f8','#c3c9d0',4,1);[[1660,700],[1690,690],[1730,700]].forEach(([x,y])=>person(x,y,'#3a3f47',.8));add(`<polyline points="1665,670 1690,660 1712,668 1745,645" fill="none" stroke="#c0392b" stroke-width="3"/>`);
-rect(1650,762,128,108,'#ece6f5','none',40);person(1690,800,'#2c3e66',.9);person(1740,792,'#2c3e66',.9);[[1665,775,'#f2c94c'],[1760,770,'#eb5757'],[1700,850,'#6fcf97'],[1750,845,'#bb6bd9']].forEach(([x,y,f])=>add(`<circle cx="${x}" cy="${y}" r="5" fill="${f}"/>`));
+rect(1640,660,124,96,'#f3f5f8','#c3c9d0',4,1);[[1660,716],[1690,706],[1730,716]].forEach(([x,y])=>person(x,y,'#3a3f47',.8));add(`<polyline points="1665,688 1690,678 1712,686 1745,664" fill="none" stroke="#c0392b" stroke-width="3"/>`);
+rect(1650,768,128,104,'#ece6f5','none',40);person(1690,804,'#2c3e66',.9);person(1740,796,'#2c3e66',.9);[[1665,780,'#f2c94c'],[1760,776,'#eb5757'],[1700,852,'#6fcf97'],[1750,848,'#bb6bd9']].forEach(([x,y,f])=>add(`<circle cx="${x}" cy="${y}" r="5" fill="${f}"/>`));
 
 /* ===== big arrow to iteration ===== */
 add(`<rect x="1162" y="730" width="44" height="210" fill="${C.red}"/><polygon points="1130,936 1238,936 1184,982" fill="${C.red}"/>`);
@@ -244,14 +247,14 @@ add(`<rect x="1162" y="730" width="44" height="210" fill="${C.red}"/><polygon po
 /* ===== iteration box ===== */
 rect(712,988,1124,410,'url(#gIt)','#e09a94',22,2);
 const rb=(x,y,w,h)=>rect(x,y,w,h,'url(#gRed)','#6d1c1c',8,1.5);
-rb(745,1140,200,56);rb(966,1140,166,56);rb(1186,1034,222,68);rb(1186,1140,222,66);rb(1186,1268,222,58);rb(1430,1140,176,56);rb(1626,1140,182,56);
+rb(745,1140,200,56);rb(966,1140,166,56);rb(1186,1024,222,88);rb(1186,1132,222,90);rb(1186,1268,222,58);rb(1430,1140,176,56);rb(1626,1140,182,56);
 team(765,1072,['po','member','tester','coach'],.8);
 team(985,1072,['po','member','tester','coach'],.8);
 team(1450,1072,['po','member','tester','coach'],.8);
 team(1645,1072,['po','member','tester','coach'],.8);
-person(1214,996,C.coach,.75,'watch');person(1345,1000,C.po,.95);
-person(1320,1118,C.tester,.8,'band');add(`<circle cx="1352" cy="1124" r="9" fill="#fff" stroke="#c0392b" stroke-width="2"/><line x1="1346" y1="1118" x2="1358" y2="1130" stroke="#c0392b" stroke-width="2"/>`);
-rect(1252,1104,58,22,'#f3f1ec','#b9b2a6',2,1);
+person(1214,986,C.coach,.75,'watch');person(1345,988,C.po,.9);
+person(1322,1108,C.tester,.7,'band');add(`<circle cx="1352" cy="1118" r="9" fill="#fff" stroke="#c0392b" stroke-width="2"/><line x1="1346" y1="1112" x2="1358" y2="1124" stroke="#c0392b" stroke-width="2"/>`);
+rect(1250,1110,58,18,'#f3f1ec','#b9b2a6',2,1);
 person(1318,1246,C.member,.8,'wrench');
 rect(1330,1296,86,46,'#f7eeb6','#c9b84a',2,1);add(`<text x="1373" y="1312" font-size="10" text-anchor="middle" font-family="monospace" fill="#333">010010100010</text><text x="1373" y="1324" font-size="10" text-anchor="middle" font-family="monospace" fill="#333">100011101010</text><text x="1373" y="1336" font-size="10" text-anchor="middle" font-family="monospace" fill="#333">101010000100</text>`);
 arrow([[724,1168],[742,1168]]);arrow([[945,1168],[963,1168]]);
@@ -286,35 +289,35 @@ const B=[
  ['發布1',940,525,'c','serif light'],['發布2',1108,525,'c','serif light'],['……',1276,525,'c','serif light'],['發布n',1437,525,'c','serif light'],
  ['結束',1673,500,'c','serif light big'],
  // 可行性分析
- ['• 建立專案願景',282,570],['• 準備營運企劃案',282,592],
+ ['• 建立專案願景',282,570],['• 準備營運企劃案',282,602],
  ['產品盒',336,800,'c'],['營運企劃案',318,955,'c'],
  // 起始
- ['• 發展專案章程',540,571],['• 辨識角色',540,593],['• 建立產品待辦清單',540,615],['• 進行高階估算',540,637],['• 建立產品地圖\n  （用戶故事地圖）',540,659],
- ['專案章程',614,804,'c'],['角色卡',618,904,'c'],['產品待辦清單',612,1026,'c'],['高階估算',612,1158,'c'],
- ['產品地圖\n（用戶故事地圖）',566,1280,'c'],['產品\n待辦清單',668,1280,'c'],
- ['發布1',698,1180,'c','sm'],['發布2',698,1212,'c','sm'],['發布3',698,1244,'c','sm'],
+ ['• 發展專案章程',540,571],['• 辨識角色',540,603],['• 建立產品待辦清單',540,635],['• 進行高階估算',540,667],['• 建立產品地圖\n  （用戶故事地圖）',540,699],
+ ['專案章程',614,846,'c'],['角色卡',618,944,'c'],['產品待辦清單',612,1062,'c'],['高階估算',612,1190,'c'],
+ ['產品地圖\n（用戶故事地圖）',566,1314,'c'],['產品\n待辦清單',668,1314,'c'],
+ ['發布1',698,1214,'c','sm'],['發布2',698,1246,'c','sm'],['發布3',698,1278,'c','sm'],
  // 單一發布內的工作
  ['單一發布內的工作',1330,580,'c','serif big2'],
  ['發布規劃',822,681,'c','serif light'],['刺探',958,668,'c','sm'],
  ['迭代循環',1218,656,'c','serif'],
  ['迭代1',1080,699,'c','serif light sm'],['迭代2',1186,699,'c','serif light sm'],['……',1282,699,'c','serif light sm'],['迭代n',1366,699,'c','serif light sm'],
  ['發布與\n回顧',1505,676,'c','serif light'],
- ['• 分解用戶故事',732,742],['• 定義驗收標準／\n  定義什麼是完成',732,764],['• 估算用戶故事點數\n  （玩撲克牌）',732,808],['• 建立發布待辦清單',732,852],
+ ['• 分解用戶故事',732,742],['• 定義驗收標準／\n  定義什麼是完成',732,774],['• 估算用戶故事點數\n  （玩撲克牌）',732,826],['• 建立發布待辦清單',732,878],
  ['蒐集下一迭代\n用戶故事細節資料',922,780],
- ['分解為小的用戶故事',806,930,'c'],['撲克牌點數',948,930,'c'],['發布待辦\n清單',1022,832,'c','sm'],
- ['發布1',1106,846,'c','sm'],['發布2',1106,876,'c','sm'],['發布3',1106,906,'c','sm'],['產品待辦清單',1070,932,'c'],
- ['• 發布增量產品／成果',1420,742],['• 進行發布回顧會議',1420,764],
+ ['分解為小的用戶故事',806,938,'c'],['撲克牌點數',948,938,'c'],['發布待辦\n清單',1022,832,'c','sm'],
+ ['發布1',1106,846,'c','sm'],['發布2',1106,876,'c','sm'],['發布3',1106,906,'c','sm'],['產品待辦清單',1070,940,'c'],
+ ['• 發布增量產品／成果',1420,742],['• 進行發布回顧會議',1420,772],
  ['增量產品／成果',1414,862,'c'],['停車場圖',1512,862,'c'],
  ['開始做',1474,898,'c','xs'],['停止做',1522,898,'c','xs'],['多做些',1474,938,'c','xs'],['少做些',1522,938,'c','xs'],['回\n饋',1562,900,'c','sm'],
- ['發布結束後，如果不是最\n終發布，就進行下一個發\n布規劃；如果是最終發布，\n則直接進入結束流程。',1612,886,'','redtxt'],
+ ['發布結束後，如果不是最\n終發布，就進行下一個發\n布規劃；如果是最終發布，\n則直接進入結束流程。',1612,894,'','redtxt'],
  // 結束
- ['• 專案產品／成果',1622,578],['• 專案回顧會議',1622,600],['• 結束專案活動',1622,622],
+ ['• 專案產品／成果',1622,578],['• 專案回顧會議',1622,608],['• 結束專案活動',1622,638],
  // 單一迭代內的工作
  ['單一迭代內的工作',1350,966,'c','serif big2'],
  ['迭代規劃（細部規劃）',845,1168,'c','light'],['每日站立會議',1049,1168,'c','light'],
- ['• 準備回答問題',1194,1046,'','light'],['• 確認用戶故事',1194,1068,'','light'],['• 蒐集下一迭代用戶故事細節',1194,1090,'','light sm'],
- ['除錯',1380,1110,'c'],
- ['• 執行驗收測試',1194,1152,'','light'],['• 準備測試案例',1194,1174,'','light'],['• 測試新增的已完成增量產品',1194,1196,'','light sm'],
+ ['• 準備回答問題',1194,1041,'','light sm'],['• 確認用戶故事',1194,1068,'','light sm'],['• 蒐集下一迭代用戶故事細節',1194,1095,'','light sm'],
+ ['除錯',1432,1108,'c'],
+ ['• 執行驗收測試',1194,1150,'','light sm'],['• 準備測試案例',1194,1177,'','light sm'],['• 測試新增的已完成增量產品',1194,1204,'','light sm'],
  ['• 完成增量產品',1200,1297,'','light'],
  ['• 持續更新專案報告',1440,1168,'','light'],['• 進行迭代審查與回顧\n  會議',1634,1158,'','light'],
  ['用戶故事',790,1216,'c'],['測試案例',912,1244,'c','sm'],['迭代1\n待辦清單',935,1272,'c','sm'],['發布1\n待辦清單',936,1356,'c','sm'],
@@ -340,9 +343,28 @@ const seen={};const blanks=[];
 const REG={all:'整張圖',stage:'階段列',early:'可行性分析＋起始',rel:'單一發布內的工作',iter:'單一迭代內的工作',close:'結束',roles:'角色'};
 function regionOf(x,y){ if(y<=530) return 'stage'; if(x<500&&y>1150) return 'roles'; if(x<720) return 'early'; if(x>=1600&&y<700) return 'close'; if(y<960) return 'rel'; return 'iter'; }
 let UI={mode:'flip',region:'all'}; try{ UI=Object.assign(UI,JSON.parse(localStorage.getItem('pm-chart-ui')||'{}')); }catch(e){}
-let mode='flip', region=REG[UI.region]?UI.region:'all';
+let mode='flip', region=UI.region||'all';
 const saveUI=()=>{ try{ localStorage.setItem('pm-chart-ui',JSON.stringify({mode,region})); }catch(e){} };
-const inRegion=b=>region==='all'||b.dataset.r===region;
+const GROUPS={
+ 'g-stage':['stage','階段名稱'],'g-feas-w':['early','可行性分析・工作事項'],'g-feas-o':['early','可行性分析・產出'],
+ 'g-init-w':['early','起始・工作事項'],'g-init-o':['early','起始・產出'],
+ 'g-rel-flow':['rel','發布：流程與刺探'],'g-rel-plan':['rel','發布規劃・工作事項'],'g-rel-out':['rel','發布規劃・產出'],'g-rel-review':['rel','發布與回顧'],
+ 'g-close':['close','結束・工作事項'],
+ 'g-iter-flow':['iter','迭代：流程方塊'],'g-iter-lanes':['iter','迭代：三條平行工作'],'g-iter-out':['iter','迭代：產出與回饋'],
+ 'g-roles':['roles','角色']};
+function groupOf(x,y){
+  if(y<=530) return 'g-stage';
+  if(x<500&&y>1150) return 'g-roles';
+  if(x<500) return y<640?'g-feas-w':'g-feas-o';
+  if(x<720) return y<730?'g-init-w':'g-init-o';
+  if(x>=1600&&y<700) return 'g-close';
+  if(y<960){ if(y<=720) return 'g-rel-flow'; if(x>=1380) return 'g-rel-review'; if(x>=905&&x<1000&&y<820) return 'g-rel-flow'; if(x<905&&y<900) return 'g-rel-plan'; return 'g-rel-out'; }
+  if(y<990||(y>=1140&&y<=1200&&(x<1180||x>=1420))) return 'g-iter-flow';
+  if(x>=1180&&x<1460&&y>=1020&&y<=1310) return 'g-iter-lanes';
+  return 'g-iter-out';
+}
+if(!REG[region]&&!GROUPS[region]) region='all';
+const inRegion=b=>region==='all'||b.dataset.r===region||b.dataset.g===region;
 let selTile=null, mistakes=0, active=null, activeCands=null;
 B.forEach(([t,x,y,anc='',sty=''])=>{
   const b=document.createElement('button');b.type='button';b.className='b';
@@ -356,7 +378,7 @@ B.forEach(([t,x,y,anc='',sty=''])=>{
   b.style.left=(anc==='c'? x-OX-r.width/2 : x-OX)+'px'; b.style.top=(y-OY-lh/2-2)+'px';
   const k=t.replace(/\s/g,''); seen[k]=(seen[k]||0)+1; b.dataset.k=k+'|'+seen[k];
   b.dataset.len=[...t.replace(/[•\s（）()、／，；。…]/g,'')].length;
-  b.dataset.r=regionOf(x,y); b.dataset.ans=t.replace(/^•\s*/,'').replace(/\n\s*/g,'').trim();
+  b.dataset.r=regionOf(x,y); b.dataset.g=groupOf(x,y); b.dataset.ans=t.replace(/^•\s*/,'').replace(/\n\s*/g,'').trim();
   if(weak[b.dataset.k]) b.classList.add('weak');
   b.addEventListener('click',()=>{ if(mode==='drag'){ if(b.classList.contains('slot')&&!b.dataset.done){ if(selTile) place(selTile,b); else setActive(b); } return; } if(b.classList.contains('hid')){ b.classList.remove('hid'); } else { b.classList.toggle('weak'); if(b.classList.contains('weak')) weak[b.dataset.k]=1; else delete weak[b.dataset.k]; save(); } update(); });
   blanks.push(b);
@@ -371,15 +393,15 @@ function update(){
     const open=R.filter(b=>!b.classList.contains('hid')).length, w=R.filter(b=>b.classList.contains('weak')).length;
     document.getElementById('count').innerHTML=`已翻 <b>${open}</b>/${R.length}・不熟 <b class="w">${w}</b>`;
   } else {
-    const left=tilesEl.children.length, done=R.filter(b=>b.dataset.done).length;
+    const left=tilesEl.querySelectorAll('.tile').length, done=R.filter(b=>b.dataset.done).length;
     document.getElementById('count').innerHTML=`已放 <b>${done}</b>/${R.length}・放錯 <b class="w">${mistakes}</b>`;
     const candsEl=document.getElementById('cands');
     if(!left){ active=null; }
     const showC=!!(active&&!active.dataset.done);
     candsEl.hidden=!showC; tilesEl.hidden=showC;
     poolMsg.innerHTML = !left ? `完成！放錯 <b class="w">${mistakes}</b> 次。<button type="button" id="again">再練一次</button>`
-      : showC ? `<span class="q">黃框這一格是？</span><span>剩 <b>${left}</b> 張・放錯 <b class="w">${mistakes}</b></span><button type="button" class="link" id="seeAll">改看全部字卡</button>`
-      : `點圖上的藍框會出現 6 個選項；也可以把字卡拖進框。剩 <b>${left}</b> 張・放錯 <b class="w">${mistakes}</b> 次 <button type="button" class="link" id="guide">一格一格來</button>`;
+      : showC ? `<span class="q">黃框這一格是？</span><span>（${poolMsg.dataset.g||''}的選項）</span><span>剩 <b>${left}</b> 張・放錯 <b class="w">${mistakes}</b></span><button type="button" class="link" id="seeAll">改看全部字卡</button>`
+      : `點圖上的藍框，下方會只列出那一區的選項；也可以把字卡拖進框。剩 <b>${left}</b> 張・放錯 <b class="w">${mistakes}</b> 次 <button type="button" class="link" id="guide">一格一格來</button>`;
     const ag=document.getElementById('again'); if(ag) ag.onclick=startDrag;
     requestAnimationFrame(fitVP);
     const sa=document.getElementById('seeAll'); if(sa) sa.onclick=()=>setActive(null);
@@ -399,7 +421,13 @@ const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(M
 function startDrag(){
   selTile=null; mistakes=0; tilesEl.innerHTML=''; if(active) active.classList.remove('active'); active=null; activeCands=null;
   blanks.forEach(b=>{ b.classList.remove('slot','ok','no','over','weak'); delete b.dataset.done; const s=inRegion(b); b.classList.toggle('hid',s); b.classList.toggle('slot',s); });
-  shuffle(blanks.filter(inRegion).map(b=>b.dataset.ans)).forEach(a=>{ const t=document.createElement('button'); t.type='button'; t.className='tile'; t.textContent=a; t.dataset.ans=a; bindTile(t); tilesEl.appendChild(t); });
+  Object.keys(GROUPS).forEach(g=>{
+    const ans=blanks.filter(b=>inRegion(b)&&b.dataset.g===g).map(b=>b.dataset.ans); if(!ans.length) return;
+    const box=document.createElement('div'); box.className='tgroup'; box.dataset.g=g;
+    box.innerHTML=`<div class="tg-name">${GROUPS[g][1]}</div><div class="tg-tiles"></div>`;
+    shuffle(ans).forEach(a=>{ const t=document.createElement('button'); t.type='button'; t.className='tile'; t.textContent=a; t.dataset.ans=a; t.dataset.g=g; bindTile(t); box.lastChild.appendChild(t); });
+    tilesEl.appendChild(box);
+  });
   update();
   if(matchMedia('(pointer: coarse)').matches || innerWidth<700) setActive(nextEmpty(null)); else focusRegion();
 }
@@ -412,14 +440,14 @@ function setActive(s){
   if(active){
     active.classList.add('active'); scrollToSlot(active);
     const right=active.dataset.ans;
-    const left=[...tilesEl.children].map(x=>x.dataset.ans).filter(a=>a!==right);
-    const sameReg=blanks.filter(b=>b.dataset.r===active.dataset.r).map(b=>b.dataset.ans).filter(a=>a!==right);
-    const pool=[...new Set(shuffle(left).concat(shuffle(sameReg)))];
-    let wrong=pool.slice(0,5);
-    if(wrong.length<5){ const extra=shuffle([...new Set(blanks.map(b=>b.dataset.ans))]).filter(a=>a!==right&&!wrong.includes(a)); wrong=wrong.concat(extra.slice(0,5-wrong.length)); }
+    /* options = everything still left in this small area (so the area's words stay together); top up to 4 from the same big region */
+    const g=active.dataset.g;
+    let wrong=[...new Set([...tilesEl.querySelectorAll('.tile')].filter(x=>x.dataset.g===g).map(x=>x.dataset.ans))].filter(a=>a!==right);
+    if(wrong.length<3){ const extra=shuffle([...new Set(blanks.filter(b=>b.dataset.r===active.dataset.r).map(b=>b.dataset.ans))]).filter(a=>a!==right&&!wrong.includes(a)); wrong=wrong.concat(extra.slice(0,3-wrong.length)); }
+    document.getElementById('poolMsg').dataset.g=GROUPS[g][1];
     shuffle([right,...wrong]).forEach(a=>{ const c=document.createElement('button'); c.type='button'; c.className='cand'; c.textContent=a;
       c.onclick=()=>{ if(!active) return;
-        if(a===active.dataset.ans){ const tile=[...tilesEl.children].find(x=>x.dataset.ans===a); if(tile) place(tile,active); }
+        if(a===active.dataset.ans){ const tile=[...tilesEl.querySelectorAll('.tile')].find(x=>x.dataset.ans===a&&x.dataset.g===active.dataset.g)||[...tilesEl.querySelectorAll('.tile')].find(x=>x.dataset.ans===a); if(tile) place(tile,active); }
         else { mistakes++; weak[active.dataset.k]=1; save(); c.classList.remove('no'); void c.offsetWidth; c.classList.add('no'); c.disabled=true; update(); } };
       candsEl.appendChild(c); });
   }
@@ -428,7 +456,7 @@ function setActive(s){
 function focusRegion(){ const f=blanks.find(inRegion); if(f&&region!=='all') scrollToSlot(f); }
 function place(tile,slot){
   if(tile.dataset.ans===slot.dataset.ans){
-    slot.classList.remove('hid','no','active'); slot.classList.add('ok'); slot.dataset.done=1; tile.remove(); selTile=null;
+    slot.classList.remove('hid','no','active'); slot.classList.add('ok'); slot.dataset.done=1; const grp=tile.closest('.tgroup'); tile.remove(); if(grp&&!grp.querySelector('.tile')) grp.remove(); selTile=null;
     if(active===slot){ update(); setActive(nextEmpty(slot)); return; }
   } else {
     mistakes++; slot.classList.remove('no'); void slot.offsetWidth; slot.classList.add('no'); setTimeout(()=>slot.classList.remove('no'),700);
@@ -500,7 +528,11 @@ vp.addEventListener('touchmove',e=>{ if(!pinch||e.touches.length!==2) return; e.
   const px=(vp.scrollLeft+mx)/z, py=(vp.scrollTop+my)/z; applyZoom(pinch.z*tdist(a,b)/pinch.d); vp.scrollLeft=px*z-mx; vp.scrollTop=py*z-my; },{passive:false});
 vp.addEventListener('touchend',e=>{ if(e.touches.length<2) pinch=null; },{passive:true});
 const regSel=document.getElementById('region');
-Object.entries(REG).forEach(([k,v])=>{ const o=document.createElement('option'); o.value=k; o.textContent=v+'（'+blanks.filter(b=>k==='all'||b.dataset.r===k).length+'）'; regSel.appendChild(o); });
+const og1=document.createElement('optgroup'); og1.label='大範圍';
+Object.entries(REG).forEach(([k,v])=>{ const o=document.createElement('option'); o.value=k; o.textContent=v+'（'+blanks.filter(b=>k==='all'||b.dataset.r===k).length+'）'; og1.appendChild(o); });
+const og2=document.createElement('optgroup'); og2.label='小區塊（一區一區練）';
+Object.entries(GROUPS).forEach(([k,[,v]])=>{ const o=document.createElement('option'); o.value=k; o.textContent=v+'（'+blanks.filter(b=>b.dataset.g===k).length+'）'; og2.appendChild(o); });
+regSel.append(og1,og2);
 regSel.value=region;
 regSel.onchange=()=>{ region=regSel.value; saveUI(); if(mode==='drag') startDrag(); else { reapplyWeak(); blanks.forEach(b=>b.classList.remove('hid')); hideWhere(()=>true); focusRegion(); } };
 document.getElementById('mFlip').onclick=()=>setMode('flip');
