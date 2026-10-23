@@ -1,5 +1,5 @@
 // 版本號：更新題庫或網頁後改這個數字，手機上的舊快取就會換掉
-const VERSION = 'pm-quiz-v3';
+const VERSION = 'pm-quiz-v4';
 const SHELL = ['./', 'index.html', 'chart.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png'];
 
 self.addEventListener('install', e => {

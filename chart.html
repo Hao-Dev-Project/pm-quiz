@@ -68,23 +68,54 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .b.flash{outline:3px solid var(--accent);outline-offset:2px}
 .b:focus-visible,.top button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .credit{font-size:12px;color:var(--muted);margin-top:8px}
+.grp,.seg{display:inline-flex;flex-wrap:wrap;gap:6px}
+.seg{gap:0}.seg button:first-child{border-radius:999px 0 0 999px}.seg button:last-child{border-radius:0 999px 999px 0;margin-left:-1px}
+.reg select{font:inherit;font-size:13px;border:1px solid #b9c0c8;border-radius:999px;padding:5px 10px;background:#fff;color:var(--ink)}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+/* drag mode */
+body.drag{padding-bottom:calc(32vh + 20px)}
+body.drag .viewport{max-height:max(200px,calc(100vh - 32vh - 120px))}
+body.drag .b:not(.slot){pointer-events:none}
+.pool{position:fixed;left:0;right:0;bottom:0;z-index:8;background:#f4f6f8;border-top:1px solid #b9c0c8;box-shadow:0 -6px 20px rgba(30,40,60,.12);
+  max-height:32vh;overflow:auto;padding:8px max(12px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}
+.pool-head{font-size:13px;color:var(--muted);margin-bottom:6px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pool-head b{color:var(--ink)} .pool-head .w{color:var(--bad)}
+.pool-head button{font:inherit;font-size:13px;border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:999px;padding:4px 12px;cursor:pointer}
+.tiles{display:flex;flex-wrap:wrap;gap:6px}
+.tile{font:inherit;font-size:14px;background:#fff;color:var(--ink);border:1px solid #8f98a3;border-radius:6px;padding:5px 10px;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.tile.sel{background:var(--accent);color:#fff;border-color:var(--accent)}
+.tile.dragging{opacity:.3}
+.ghost{position:fixed;z-index:30;pointer-events:none;transform:translate(-50%,-70%);box-shadow:0 8px 18px rgba(0,0,0,.25);cursor:grabbing}
+.b.slot.hid{border:1.5px dashed var(--accent);background:rgba(232,238,255,.94)}
+.b.light.slot.hid{background:rgba(232,238,255,.35);border-color:#fff}
+.b.slot.over{outline:3px solid var(--accent);outline-offset:1px}
+.b.ok{border:2px solid #17845a!important;background:rgba(223,243,234,.95)}
+.b.light.ok{background:rgba(23,132,90,.5)}
+.b.no{border:2px solid var(--bad)!important;animation:shake .35s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 </style>
 </head>
 <body>
 <div class="top" role="toolbar" aria-label="默寫工具">
   <a href="./">← 題庫</a>
+  <span class="seg"><button id="mFlip" aria-pressed="true">翻牌</button><button id="mDrag" aria-pressed="false">拖拉字卡</button></span>
+  <label class="reg"><span class="vh">練習範圍</span><select id="region"></select></label>
+  <span id="flipTools" class="grp">
   <button class="primary" id="nextBtn">翻下一格</button>
   <button id="hideAll">全部遮住</button>
   <button id="showAll">全部顯示</button>
   <button id="weakOnly">只遮不熟的</button>
+  </span>
+  <span id="dragTools" class="grp" hidden><button class="primary" id="restart">重新洗牌</button></span>
   <button id="hintBtn" aria-pressed="false">字數提示</button>
   <span class="zoom"><button id="zOut" aria-label="縮小">－</button><button id="zFit">整張</button><button id="zIn" aria-label="放大">＋</button></span>
   <span class="count" id="count"></span>
 </div>
-<p class="hintline">點虛線框翻開答案；翻開後再點一次標成「不熟」（紅框，會記在這支手機）。手機建議橫放，或用＋放大後左右滑動。</p>
+<p class="hintline" id="hintline"></p>
 
 <div class="viewport" id="vp"><div class="sizer" id="sizer"><div class="canvas" id="cv"><svg id="art" viewBox="60 300 1800 1130" aria-hidden="true"></svg></div></div></div>
+<div class="pool" id="pool" hidden><div class="pool-head" id="poolMsg"></div><div class="tiles" id="tiles"></div></div>
 <p class="credit">依 NPMA 中華專案管理學會「敏捷專案管理架構圖」版面重繪，僅供個人默寫練習；插圖為簡化示意。</p>
 
 <script>
@@ -282,6 +313,13 @@ const SIZE={big:22,big2:20,sm:13,xs:11.5};
 const KEY='pm-chart-v2';let weak={};try{weak=JSON.parse(localStorage.getItem(KEY)||'{}')||{};}catch(e){weak={};}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(weak));}catch(e){}};
 const seen={};const blanks=[];
+const REG={all:'整張圖',stage:'階段列',early:'可行性分析＋起始',rel:'單一發布內的工作',iter:'單一迭代內的工作',close:'結束',roles:'角色'};
+function regionOf(x,y){ if(y<=530) return 'stage'; if(x<500&&y>1150) return 'roles'; if(x<720) return 'early'; if(x>=1600&&y<700) return 'close'; if(y<960) return 'rel'; return 'iter'; }
+let UI={mode:'flip',region:'all'}; try{ UI=Object.assign(UI,JSON.parse(localStorage.getItem('pm-chart-ui')||'{}')); }catch(e){}
+let mode='flip', region=REG[UI.region]?UI.region:'all';
+const saveUI=()=>{ try{ localStorage.setItem('pm-chart-ui',JSON.stringify({mode,region})); }catch(e){} };
+const inRegion=b=>region==='all'||b.dataset.r===region;
+let selTile=null, mistakes=0;
 B.forEach(([t,x,y,anc='',sty=''])=>{
   const b=document.createElement('button');b.type='button';b.className='b';
   sty.split(' ').filter(Boolean).forEach(s=>{ if(SIZE[s]) b.style.fontSize=SIZE[s]+'px'; else if(s==='redtxt'){ b.style.color='#9c2f2f'; b.style.fontWeight='700'; b.style.fontSize='13.5px'; } else b.classList.add(s); });
@@ -294,24 +332,88 @@ B.forEach(([t,x,y,anc='',sty=''])=>{
   b.style.left=(anc==='c'? x-OX-r.width/2 : x-OX)+'px'; b.style.top=(y-OY-lh/2-2)+'px';
   const k=t.replace(/\s/g,''); seen[k]=(seen[k]||0)+1; b.dataset.k=k+'|'+seen[k];
   b.dataset.len=[...t.replace(/[•\s（）()、／，；。…]/g,'')].length;
+  b.dataset.r=regionOf(x,y); b.dataset.ans=t.replace(/^•\s*/,'').replace(/\n\s*/g,'').trim();
   if(weak[b.dataset.k]) b.classList.add('weak');
-  b.addEventListener('click',()=>{ if(b.classList.contains('hid')){ b.classList.remove('hid'); } else { b.classList.toggle('weak'); if(b.classList.contains('weak')) weak[b.dataset.k]=1; else delete weak[b.dataset.k]; save(); } update(); });
+  b.addEventListener('click',()=>{ if(mode==='drag'){ if(b.classList.contains('slot')&&!b.dataset.done&&selTile) place(selTile,b); return; } if(b.classList.contains('hid')){ b.classList.remove('hid'); } else { b.classList.toggle('weak'); if(b.classList.contains('weak')) weak[b.dataset.k]=1; else delete weak[b.dataset.k]; save(); } update(); });
   blanks.push(b);
 });
 let hint=false;
+const tilesEl=document.getElementById('tiles'), poolMsg=document.getElementById('poolMsg');
 function update(){
-  blanks.forEach(b=>{ b.querySelector('.ph').textContent = hint ? (b.dataset.len>0 ? b.dataset.len+' 字' : '') : '？'; b.setAttribute('aria-label', b.classList.contains('hid')?'空格，點一下翻開':b.textContent); });
-  const open=blanks.filter(b=>!b.classList.contains('hid')).length, w=blanks.filter(b=>b.classList.contains('weak')).length;
-  document.getElementById('count').innerHTML=`已翻 <b>${open}</b>/${blanks.length}・不熟 <b class="w">${w}</b>`;
+  blanks.forEach(b=>{ const len=b.dataset.len>0?b.dataset.len+' 字':''; b.querySelector('.ph').textContent = mode==='drag' ? (hint?len:'') : (hint?len:'？');
+    b.setAttribute('aria-label', b.classList.contains('hid')?(mode==='drag'?'空格，放字卡':'空格，點一下翻開'):b.textContent); });
+  const R=blanks.filter(inRegion);
+  if(mode==='flip'){
+    const open=R.filter(b=>!b.classList.contains('hid')).length, w=R.filter(b=>b.classList.contains('weak')).length;
+    document.getElementById('count').innerHTML=`已翻 <b>${open}</b>/${R.length}・不熟 <b class="w">${w}</b>`;
+  } else {
+    const left=tilesEl.children.length, done=R.filter(b=>b.dataset.done).length;
+    document.getElementById('count').innerHTML=`已放 <b>${done}</b>/${R.length}・放錯 <b class="w">${mistakes}</b>`;
+    poolMsg.innerHTML = left ? `把字卡拖到圖上的藍色虛線框，或先點字卡、再點框。剩 <b>${left}</b> 張・放錯 <b class="w">${mistakes}</b> 次`
+      : `完成！放錯 <b class="w">${mistakes}</b> 次。<button type="button" id="again">再練一次</button>`;
+    const ag=document.getElementById('again'); if(ag) ag.onclick=startDrag;
+  }
 }
-const hideWhere=fn=>{blanks.forEach(b=>b.classList.toggle('hid',fn(b)));update();};
+const hideWhere=fn=>{blanks.forEach(b=>b.classList.toggle('hid',inRegion(b)&&fn(b)));update();};
+function reapplyWeak(){ blanks.forEach(b=>b.classList.toggle('weak',!!weak[b.dataset.k])); }
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+function startDrag(){
+  selTile=null; mistakes=0; tilesEl.innerHTML='';
+  blanks.forEach(b=>{ b.classList.remove('slot','ok','no','over','weak'); delete b.dataset.done; const s=inRegion(b); b.classList.toggle('hid',s); b.classList.toggle('slot',s); });
+  shuffle(blanks.filter(inRegion).map(b=>b.dataset.ans)).forEach(a=>{ const t=document.createElement('button'); t.type='button'; t.className='tile'; t.textContent=a; t.dataset.ans=a; bindTile(t); tilesEl.appendChild(t); });
+  update();
+}
+function place(tile,slot){
+  if(tile.dataset.ans===slot.dataset.ans){
+    slot.classList.remove('hid','no'); slot.classList.add('ok'); slot.dataset.done=1; tile.remove(); selTile=null;
+  } else {
+    mistakes++; slot.classList.remove('no'); void slot.offsetWidth; slot.classList.add('no'); setTimeout(()=>slot.classList.remove('no'),700);
+    weak[slot.dataset.k]=1; save(); tile.classList.remove('sel'); selTile=null;
+  }
+  update();
+}
+function bindTile(tile){
+  let start=null, dragging=false, ghost=null, over=null;
+  const slotAt=(x,y)=>{ const el=document.elementFromPoint(x,y); const s=el&&el.closest('.b.slot'); return s&&!s.dataset.done?s:null; };
+  const clearOver=()=>{ if(over) over.classList.remove('over'); over=null; };
+  tile.addEventListener('pointerdown',e=>{ if(e.button>0) return; start={x:e.clientX,y:e.clientY}; dragging=false; try{tile.setPointerCapture(e.pointerId);}catch(_){} });
+  tile.addEventListener('pointermove',e=>{
+    if(!start) return;
+    if(!dragging && Math.hypot(e.clientX-start.x,e.clientY-start.y)>6){ dragging=true; ghost=tile.cloneNode(true); ghost.classList.remove('sel'); ghost.classList.add('ghost'); document.body.appendChild(ghost); tile.classList.add('dragging'); }
+    if(!dragging) return;
+    e.preventDefault();
+    ghost.style.left=e.clientX+'px'; ghost.style.top=e.clientY+'px';
+    const s=slotAt(e.clientX,e.clientY); if(s!==over){ clearOver(); over=s; if(s) s.classList.add('over'); }
+    const r=vp.getBoundingClientRect(), m=48;
+    if(e.clientX<r.left+m) vp.scrollLeft-=18; else if(e.clientX>r.right-m) vp.scrollLeft+=18;
+    if(e.clientY<r.top+m) vp.scrollTop-=18; else if(e.clientY>r.bottom-m && e.clientY<r.bottom+10) vp.scrollTop+=18;
+  });
+  const end=e=>{
+    if(!start) return;
+    if(dragging){ ghost.remove(); ghost=null; tile.classList.remove('dragging'); const s=slotAt(e.clientX,e.clientY); clearOver(); if(s) place(tile,s); }
+    else if(e.type==='pointerup'){ const was=tile.classList.contains('sel'); tilesEl.querySelectorAll('.sel').forEach(x=>x.classList.remove('sel')); if(!was){ tile.classList.add('sel'); selTile=tile; } else selTile=null; }
+    start=null; dragging=false;
+  };
+  tile.addEventListener('pointerup',end); tile.addEventListener('pointercancel',e=>{ if(ghost){ghost.remove();ghost=null;} tile.classList.remove('dragging'); clearOver(); start=null; dragging=false; });
+}
+function setMode(m){
+  mode=m; saveUI();
+  document.getElementById('mFlip').setAttribute('aria-pressed',String(m==='flip'));
+  document.getElementById('mDrag').setAttribute('aria-pressed',String(m==='drag'));
+  document.getElementById('flipTools').hidden=m!=='flip'; document.getElementById('dragTools').hidden=m!=='drag';
+  document.getElementById('pool').hidden=m!=='drag'; document.body.classList.toggle('drag',m==='drag');
+  document.getElementById('hintline').textContent = m==='flip'
+    ? '點虛線框翻開答案；翻開後再點一次標成「不熟」（紅框，會記在這支手機）。手機建議橫放，或用＋放大後左右滑動。'
+    : '把下方字卡拖到圖上對應的框；放錯會彈回並記成不熟。範圍選小一點比較好拖，例如先練「單一迭代內的工作」。';
+  if(m==='drag') startDrag(); else { blanks.forEach(b=>{ b.classList.remove('slot','ok','no','over'); delete b.dataset.done; }); reapplyWeak(); hideWhere(()=>true); }
+}
 document.getElementById('hideAll').onclick=()=>hideWhere(()=>true);
 document.getElementById('showAll').onclick=()=>hideWhere(()=>false);
 document.getElementById('weakOnly').onclick=()=>hideWhere(b=>b.classList.contains('weak'));
 document.getElementById('hintBtn').onclick=e=>{hint=!hint;e.currentTarget.setAttribute('aria-pressed',String(hint));update();};
 /* reading order: stage row left→right, then each column top→bottom */
 const order=[...blanks];
-document.getElementById('nextBtn').onclick=()=>{const b=order.find(x=>x.classList.contains('hid'));if(!b)return;
+document.getElementById('nextBtn').onclick=()=>{const b=order.find(x=>inRegion(x)&&x.classList.contains('hid'));if(!b)return;
   b.scrollIntoView({block:'center',inline:'center',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
   b.classList.remove('hid');b.classList.add('flash');setTimeout(()=>b.classList.remove('flash'),900);update();};
 
@@ -324,7 +426,14 @@ document.getElementById('zIn').onclick=()=>applyZoom(z*1.25);
 document.getElementById('zOut').onclick=()=>applyZoom(z/1.25);
 document.getElementById('zFit').onclick=()=>applyZoom(fit());
 applyZoom(z&&!isNaN(z)?z:Math.max(fit(),.62));
-hideWhere(()=>true);
+const regSel=document.getElementById('region');
+Object.entries(REG).forEach(([k,v])=>{ const o=document.createElement('option'); o.value=k; o.textContent=v+'（'+blanks.filter(b=>k==='all'||b.dataset.r===k).length+'）'; regSel.appendChild(o); });
+regSel.value=region;
+regSel.onchange=()=>{ region=regSel.value; saveUI(); if(mode==='drag') startDrag(); else { reapplyWeak(); blanks.forEach(b=>b.classList.remove('hid')); hideWhere(()=>true); } };
+document.getElementById('mFlip').onclick=()=>setMode('flip');
+document.getElementById('mDrag').onclick=()=>setMode('drag');
+document.getElementById('restart').onclick=startDrag;
+setMode(UI.mode==='drag'?'drag':'flip');
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}
 </script>
 </body>
