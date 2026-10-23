@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>敏捷架構圖默寫</title>
+<meta name="description" content="NPMA 敏捷專案管理架構圖挖空默寫練習：點格子翻答案，標記不熟的格子，只練不熟的。">
+<meta name="theme-color" content="#eef1f4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#11161c" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="專案管理題庫">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@700;900&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: the NPMA chart redrawn as a grid — stage chevrons on top, release box and iteration box nested below — every label a tap-to-reveal blank. */
+:root{
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+  --paper:#eef1f4; --sheet:#ffffff; --ink:#18222e; --muted:#5b6876; --rule:#d5dbe2;
+  --accent:#2340b8;
+  --stage:#2c5aa0; --stage-soft:#e4ecf8;
+  --rel:#d9732f; --rel-soft:#fbeee3;
+  --it:#a8323a; --it-soft:#f8e6e7;
+  --good:#17845a; --bad:#c43a4f; --bad-soft:#fbe5e9;
+  --blank:#f3f5f8; --blank-line:#aab4c0;
+  --po:#2f9a4a; --coach:#7b4fc4; --member:#b8432f; --tester:#2f6fc4; --sponsor:#c99a1c; --stake:#d8b42a;
+  --f-display:"Noto Serif TC","Songti TC",serif;
+  --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#11161c; --sheet:#19212a; --ink:#e6ebf1; --muted:#97a3b1; --rule:#2c3743; --accent:#8ea2ff;
+  --stage:#7fa6e6; --stage-soft:#1c2a40; --rel:#f0a066; --rel-soft:#38261a; --it:#ef8a90; --it-soft:#3a1d21;
+  --good:#4cc792; --bad:#f07689; --bad-soft:#3d1c24; --blank:#222c37; --blank-line:#4a5866;
+  --po:#5cc777; --coach:#a989f0; --member:#f0806b; --tester:#6fa6f0; --sponsor:#e6c04e; --stake:#ecd06a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#11161c; --sheet:#19212a; --ink:#e6ebf1; --muted:#97a3b1; --rule:#2c3743; --accent:#8ea2ff;
+  --stage:#7fa6e6; --stage-soft:#1c2a40; --rel:#f0a066; --rel-soft:#38261a; --it:#ef8a90; --it-soft:#3a1d21;
+  --good:#4cc792; --bad:#f07689; --bad-soft:#3d1c24; --blank:#222c37; --blank-line:#4a5866;
+  --po:#5cc777; --coach:#a989f0; --member:#f0806b; --tester:#6fa6f0; --sponsor:#e6c04e; --stake:#ecd06a; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 120px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+h1,h2,h3{font-family:var(--f-display);margin:0;line-height:1.3;text-wrap:balance}
+h1{font-size:clamp(22px,3.6vw,30px);font-weight:900}
+h2{font-size:15px;font-weight:700}
+header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:10px;border-bottom:2px solid var(--ink);padding-bottom:12px}
+header p{margin:2px 0 0;color:var(--muted);font-size:13px}
+a.back{color:var(--muted);font-size:13px}
+.label{font-size:12px;letter-spacing:.08em;color:var(--muted);font-weight:500}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+
+/* toolbar: sticky so controls stay reachable while scrolling the chart */
+.tools{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);padding-block:10px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-bottom:1px solid var(--rule)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+.tools button{font:inherit;font-size:13px;border:1px solid var(--rule);background:var(--sheet);color:var(--ink);border-radius:999px;padding:5px 12px;cursor:pointer}
+.tools button.primary{background:var(--accent);border-color:var(--accent);color:var(--sheet);font-weight:700}
+.tools button[aria-pressed="true"]{background:var(--ink);color:var(--sheet);border-color:var(--ink)}
+.tools .count{margin-left:auto;font-size:13px;color:var(--muted)}
+.tools .count b{color:var(--ink)}
+.tools .count .bad{color:var(--bad)}
+.howto{font-size:12.5px;color:var(--muted);margin:0}
+
+/* chart grid */
+.chart{display:grid;gap:14px;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,3.2fr) minmax(0,1.15fr);
+  grid-template-areas:
+   "sFeas sInit sRel sClose"
+   "feas  init  rel  close"
+   "roles roles iter iter"}
+@media (max-width:980px){.chart{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:
+   "sFeas sInit" "sRel sClose" "feas init" "rel rel" "iter iter" "close close" "roles roles"}}
+@media (max-width:560px){.chart{grid-template-columns:minmax(0,1fr);grid-template-areas:
+   "sFeas" "feas" "sInit" "init" "sRel" "rel" "iter" "sClose" "close" "roles"}}
+.a-sFeas{grid-area:sFeas}.a-sInit{grid-area:sInit}.a-sRel{grid-area:sRel}.a-sClose{grid-area:sClose}
+.a-feas{grid-area:feas}.a-init{grid-area:init}.a-rel{grid-area:rel}.a-close{grid-area:close}.a-iter{grid-area:iter}.a-roles{grid-area:roles}
+
+/* stage chevrons */
+.chev{background:var(--stage);color:#fff;clip-path:polygon(0 0,calc(100% - 16px) 0,100% 50%,calc(100% - 16px) 100%,0 100%,12px 50%);padding:12px 26px 12px 22px;min-height:58px;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}
+.chev.rel{background:var(--rel);flex-direction:column}
+.chev .tagline{font-size:11px;opacity:.85;letter-spacing:.08em}
+.chev .b{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.55);color:#fff;font-weight:700;font-size:15px}
+.chev .b.hid{background:rgba(255,255,255,.12)}
+.chev .b.hid .ph{color:rgba(255,255,255,.85)}
+.subs{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.subs .b{font-size:13px;font-weight:500}
+
+/* panels */
+.panel{background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:12px;min-width:0;align-self:start}
+.panel.rel{background:var(--rel-soft);border-color:var(--rel)}
+.panel.iter{background:var(--it-soft);border-color:var(--it)}
+.rowlab{display:flex;align-items:center;gap:8px}
+.rowlab::after{content:"";flex:1;border-top:1px dashed var(--rule)}
+.list{display:flex;flex-direction:column;gap:6px;margin:0;padding:0;list-style:none}
+.list li{display:flex;gap:6px;align-items:flex-start}
+.list li::before{content:"•";color:var(--muted);line-height:2}
+.outs{display:flex;flex-wrap:wrap;gap:6px}
+.title-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.title-row h2{color:var(--rel)}
+.panel.iter .title-row h2{color:var(--it)}
+
+/* flow inside release / iteration */
+.flow{display:flex;flex-wrap:wrap;align-items:flex-start;gap:6px}
+.flow .arrow{align-self:center;color:var(--muted);font-size:16px}
+.step{flex:1 1 150px;align-self:stretch;min-width:0;background:var(--sheet);border:1px solid var(--rule);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:8px}
+.panel.rel .step{border-color:color-mix(in srgb,var(--rel) 45%,var(--rule))}
+.panel.iter .step{border-color:color-mix(in srgb,var(--it) 45%,var(--rule))}
+.step.head > .b{font-weight:700}
+.loop{flex:2 1 220px;background:transparent;border:1.5px dashed var(--rel)}
+.panel.iter .loop{border-color:var(--it)}
+.lanes{display:flex;flex-direction:column;gap:8px;flex:3 1 260px;min-width:0}
+.panel.iter .step{align-self:flex-start}
+.lane{background:var(--sheet);border:1px solid var(--rule);border-left:4px solid var(--rule);border-radius:8px;padding:8px 10px;display:flex;flex-direction:column;gap:6px}
+.lane.po{border-left-color:var(--po)} .lane.tester{border-left-color:var(--tester)} .lane.member{border-left-color:var(--member)}
+.who{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}
+.d-po{background:var(--po)} .d-coach{background:var(--coach)} .d-member{background:var(--member)} .d-tester{background:var(--tester)} .d-sponsor{background:var(--sponsor)} .d-stake{background:var(--stake)}
+.quad{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;max-width:220px}
+.note{font-size:13px;border-left:3px solid var(--rel);padding:6px 10px;background:var(--sheet);border-radius:0 6px 6px 0}
+
+/* roles */
+.roles-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2.4fr);gap:8px}
+.rbox{border:1px solid var(--rule);border-radius:8px;padding:8px;display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.rbox.team{background:color-mix(in srgb,var(--good) 8%,var(--sheet))}
+.rbox .inner{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start}
+.person{display:flex;align-items:center;gap:6px}
+
+/* the blank itself */
+.b{font:inherit;color:var(--ink);background:var(--sheet);border:1px solid var(--rule);border-radius:6px;padding:3px 8px;cursor:pointer;text-align:left;line-height:1.5;min-height:30px;max-width:100%;overflow-wrap:anywhere}
+.b.hid{background:var(--blank);border:1px dashed var(--blank-line)}
+.b.hid .a{display:none}
+.b:not(.hid) .ph{display:none}
+.b .ph{color:var(--muted);letter-spacing:.15em;font-family:var(--f-mono)}
+.b.weak{border:1.5px solid var(--bad);background:var(--bad-soft)}
+.b.weak.hid{border-style:dashed}
+.b.flash{outline:3px solid var(--accent);outline-offset:2px}
+.b:focus-visible,.tools button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:22px;height:14px;border-radius:3px;display:inline-block}
+.sw.h{background:var(--blank);border:1px dashed var(--blank-line)} .sw.s{background:var(--sheet);border:1px solid var(--rule)} .sw.w{background:var(--bad-soft);border:1.5px solid var(--bad)}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>敏捷專案管理架構圖・默寫</h1>
+      <p>NPMA 中華專案管理學會版本。點灰色格子翻開答案，翻開後再點一次可以標成「不熟」。</p>
+    </div>
+    <a class="back" href="./">← 回題庫</a>
+  </header>
+
+  <div class="tools" role="toolbar" aria-label="默寫工具">
+    <button class="primary" id="nextBtn">翻下一格</button>
+    <button id="hideAll">全部遮住</button>
+    <button id="showAll">全部顯示</button>
+    <button id="weakOnly">只遮不熟的</button>
+    <button id="hintBtn" aria-pressed="false">字數提示</button>
+    <span class="count" id="count"></span>
+  </div>
+  <div class="legend"><span><i class="sw h"></i>還沒翻</span><span><i class="sw s"></i>已翻開</span><span><i class="sw w"></i>不熟（會記在這支手機）</span><span><i class="dot d-po"></i>產品負責人</span><span><i class="dot d-coach"></i>敏捷教練</span><span><i class="dot d-member"></i>團隊成員</span><span><i class="dot d-tester"></i>測試者</span><span><i class="dot d-sponsor"></i>贊助者</span></div>
+
+  <div class="chart" id="chart">
+    <!-- stage row -->
+    <div class="chev a-sFeas" data-s="stage"><button class="b">可行性分析</button></div>
+    <div class="chev a-sInit" data-s="stage"><button class="b">起始</button></div>
+    <div class="chev rel a-sRel" data-s="stage">
+      <button class="b">發布循環</button>
+      <div class="subs"><button class="b">發布1</button><button class="b">發布2</button><button class="b">……</button><button class="b">發布n</button></div>
+    </div>
+    <div class="chev a-sClose" data-s="stage"><button class="b">結束</button></div>
+
+    <!-- 可行性分析 -->
+    <section class="panel a-feas" data-s="feas" aria-label="可行性分析">
+      <div class="rowlab"><span class="label">工作事項</span></div>
+      <ul class="list"><li><button class="b">建立專案願景</button></li><li><button class="b">準備營運企劃案</button></li></ul>
+      <div class="rowlab"><span class="label">產出</span></div>
+      <div class="outs"><button class="b">產品盒</button><button class="b">營運企劃案</button></div>
+    </section>
+
+    <!-- 起始 -->
+    <section class="panel a-init" data-s="init" aria-label="起始">
+      <div class="rowlab"><span class="label">工作事項</span></div>
+      <ul class="list">
+        <li><button class="b">發展專案章程</button></li>
+        <li><button class="b">辨識角色</button></li>
+        <li><button class="b">建立產品待辦清單</button></li>
+        <li><button class="b">進行高階估算</button></li>
+        <li><button class="b">建立產品地圖（用戶故事地圖）</button></li>
+      </ul>
+      <div class="rowlab"><span class="label">產出</span></div>
+      <div class="outs"><button class="b">專案章程</button><button class="b">角色卡</button><button class="b">產品待辦清單</button><button class="b">高階估算（T 恤尺寸卡）</button><button class="b">產品地圖（用戶故事地圖）</button><button class="b">產品待辦清單（發布1、發布2、發布3）</button></div>
+    </section>
+
+    <!-- 單一發布內的工作 -->
+    <section class="panel rel a-rel" data-s="rel" aria-label="單一發布內的工作">
+      <div class="title-row"><h2>單一發布內的工作</h2></div>
+      <div class="flow">
+        <div class="step head">
+          <button class="b">發布規劃</button>
+          <ul class="list">
+            <li><button class="b">分解用戶故事</button></li>
+            <li><button class="b">定義驗收標準／定義什麼是完成</button></li>
+            <li><button class="b">估算用戶故事點數（玩撲克牌）</button></li>
+            <li><button class="b">建立發布待辦清單</button></li>
+          </ul>
+        </div>
+        <span class="arrow" aria-hidden="true">→</span>
+        <div class="step head">
+          <button class="b">刺探</button>
+          <span class="who"><i class="dot d-member"></i><i class="dot d-po"></i></span>
+          <button class="b">蒐集下一迭代用戶故事細節資料</button>
+        </div>
+        <span class="arrow" aria-hidden="true">→</span>
+        <div class="step loop head">
+          <button class="b">迭代循環</button>
+          <div class="outs"><button class="b">迭代1</button><button class="b">迭代2</button><button class="b">……</button><button class="b">迭代n</button></div>
+        </div>
+        <span class="arrow" aria-hidden="true">→</span>
+        <div class="step head">
+          <button class="b">發布與回顧</button>
+          <ul class="list">
+            <li><button class="b">發布增量產品／成果</button></li>
+            <li><button class="b">進行發布回顧會議</button></li>
+          </ul>
+        </div>
+      </div>
+      <div class="rowlab"><span class="label">產出</span></div>
+      <div class="outs"><button class="b">分解為小的用戶故事</button><button class="b">撲克牌點數</button><button class="b">發布待辦清單</button><button class="b">產品待辦清單</button><button class="b">增量產品／成果</button><button class="b">停車場圖</button></div>
+      <div class="rowlab"><span class="label">回饋（四格）</span></div>
+      <div class="quad"><button class="b">開始做</button><button class="b">停止做</button><button class="b">多做些</button><button class="b">少做些</button></div>
+      <div class="rowlab"><span class="label">發布結束後</span></div>
+      <div class="note"><button class="b">不是最終發布 → 進行下一個發布規劃；是最終發布 → 直接進入結束流程</button></div>
+    </section>
+
+    <!-- 結束 -->
+    <section class="panel a-close" data-s="close" aria-label="結束">
+      <div class="rowlab"><span class="label">工作事項</span></div>
+      <ul class="list"><li><button class="b">專案產品／成果</button></li><li><button class="b">專案回顧會議</button></li><li><button class="b">結束專案活動</button></li></ul>
+    </section>
+
+    <!-- 單一迭代內的工作 -->
+    <section class="panel iter a-iter" data-s="iter" aria-label="單一迭代內的工作">
+      <div class="title-row"><h2>單一迭代內的工作</h2></div>
+      <div class="flow">
+        <div class="step head"><button class="b">迭代規劃（細部規劃）</button></div>
+        <span class="arrow" aria-hidden="true">→</span>
+        <div class="step head"><button class="b">每日站立會議</button></div>
+        <span class="arrow" aria-hidden="true">→</span>
+        <div class="lanes">
+          <div class="lane po"><span class="who"><i class="dot d-po"></i>產品負責人</span>
+            <ul class="list"><li><button class="b">準備回答問題</button></li><li><button class="b">確認用戶故事</button></li><li><button class="b">蒐集下一迭代用戶故事細節</button></li></ul></div>
+          <div class="lane tester"><span class="who"><i class="dot d-tester"></i>測試者</span>
+            <ul class="list"><li><button class="b">執行驗收測試</button></li><li><button class="b">準備測試案例</button></li><li><button class="b">測試新增的已完成增量產品</button></li></ul>
+            <div class="outs"><button class="b">除錯</button></div></div>
+          <div class="lane member"><span class="who"><i class="dot d-member"></i>團隊成員</span>
+            <ul class="list"><li><button class="b">完成增量產品</button></li></ul></div>
+        </div>
+        <span class="arrow" aria-hidden="true">→</span>
+        <div class="step head"><button class="b">持續更新專案報告</button></div>
+        <span class="arrow" aria-hidden="true">→</span>
+        <div class="step head"><button class="b">進行迭代審查與回顧會議</button></div>
+      </div>
+      <div class="rowlab"><span class="label">產出</span></div>
+      <div class="outs"><button class="b">用戶故事</button><button class="b">工作1、工作2、工作3</button><button class="b">測試案例</button><button class="b">迭代1待辦清單</button><button class="b">發布1待辦清單</button><button class="b">用戶故事看板</button><button class="b">燃盡圖</button></div>
+      <div class="rowlab"><span class="label">回饋（四格）</span></div>
+      <div class="quad"><button class="b">開始做</button><button class="b">停止做</button><button class="b">多做些</button><button class="b">少做些</button></div>
+    </section>
+
+    <!-- 角色 -->
+    <section class="panel a-roles" data-s="roles" aria-label="角色">
+      <div class="rowlab"><span class="label">角色（圖左下角）</span></div>
+      <div class="roles-grid">
+        <div class="rbox">
+          <button class="b">利害關係人</button>
+          <span class="person"><i class="dot d-sponsor"></i><button class="b">贊助者</button></span>
+        </div>
+        <div class="rbox team">
+          <button class="b">敏捷團隊</button>
+          <div class="inner">
+            <span class="person"><i class="dot d-po"></i><button class="b">產品負責人</button></span>
+            <span class="person"><i class="dot d-coach"></i><button class="b">敏捷教練</button></span>
+            <div class="rbox" style="background:var(--sheet)">
+              <button class="b">開發團隊</button>
+              <div class="inner">
+                <span class="person"><i class="dot d-member"></i><button class="b">團隊成員</button></span>
+                <span class="person"><i class="dot d-tester"></i><button class="b">測試者</button></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+  <p class="howto">練習方式：先按「全部遮住」，在紙上或腦中默寫一格，再點開對答案。想不出來的翻開後再點一次標成不熟，之後用「只遮不熟的」重練。</p>
+</div>
+
+<script>
+const KEY='pm-chart-v1';
+let weak={};
+try{ weak=JSON.parse(localStorage.getItem(KEY)||'{}')||{}; }catch(e){ weak={}; }
+const save=()=>{ try{ localStorage.setItem(KEY,JSON.stringify(weak)); }catch(e){} };
+const blanks=[...document.querySelectorAll('#chart .b')];
+const seen={};
+blanks.forEach(b=>{
+  const text=b.textContent.trim();
+  const sec=b.closest('[data-s]').dataset.s;
+  const base=sec+'|'+text; seen[base]=(seen[base]||0)+1;
+  b.dataset.k=base+'|'+seen[base];
+  b.dataset.len=[...text.replace(/[（）()、／→；\s]/g,'')].length;
+  b.innerHTML=`<span class="a">${b.innerHTML}</span><span class="ph" aria-hidden="true"></span>`;
+  b.setAttribute('aria-label','空格，點一下翻開');
+  if(weak[b.dataset.k]) b.classList.add('weak');
+  b.addEventListener('click',()=>{
+    if(b.classList.contains('hid')){ b.classList.remove('hid'); b.removeAttribute('aria-label'); }
+    else { b.classList.toggle('weak'); if(b.classList.contains('weak')) weak[b.dataset.k]=1; else delete weak[b.dataset.k]; save(); }
+    update();
+  });
+});
+let hint=false;
+function placeholder(b){ return hint ? '○'.repeat(Math.min(+b.dataset.len,14)) : '？'; }
+function update(){
+  blanks.forEach(b=>{ b.querySelector('.ph').textContent=placeholder(b); });
+  const open=blanks.filter(b=>!b.classList.contains('hid')).length;
+  const w=blanks.filter(b=>b.classList.contains('weak')).length;
+  document.getElementById('count').innerHTML=`已翻 <b class="mono">${open}</b>/<span class="mono">${blanks.length}</span>・不熟 <b class="mono bad">${w}</b>`;
+}
+function hideWhere(fn){ blanks.forEach(b=>{ if(fn(b)){ b.classList.add('hid'); b.setAttribute('aria-label','空格，點一下翻開'); } else { b.classList.remove('hid'); b.removeAttribute('aria-label'); } }); update(); }
+document.getElementById('hideAll').onclick=()=>hideWhere(()=>true);
+document.getElementById('showAll').onclick=()=>hideWhere(()=>false);
+document.getElementById('weakOnly').onclick=()=>hideWhere(b=>b.classList.contains('weak'));
+document.getElementById('hintBtn').onclick=e=>{ hint=!hint; e.currentTarget.setAttribute('aria-pressed',String(hint)); update(); };
+document.getElementById('nextBtn').onclick=()=>{
+  const b=blanks.find(x=>x.classList.contains('hid')); if(!b) return;
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  b.scrollIntoView({block:'center',behavior:reduce?'auto':'smooth'});
+  b.classList.remove('hid'); b.removeAttribute('aria-label'); b.classList.add('flash'); setTimeout(()=>b.classList.remove('flash'),900); update();
+};
+hideWhere(()=>true);
+if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{})); }
+</script>
+</body>
+</html>
