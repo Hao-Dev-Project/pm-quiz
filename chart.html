@@ -4,9 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>敏捷架構圖默寫</title>
-<meta name="description" content="NPMA 敏捷專案管理架構圖挖空默寫練習：點格子翻答案，標記不熟的格子，只練不熟的。">
-<meta name="theme-color" content="#eef1f4" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#11161c" media="(prefers-color-scheme: dark)">
+<meta name="description" content="依 NPMA 敏捷專案管理架構圖版面重繪的挖空默寫練習：點格子翻答案，標記不熟的格子，只練不熟的。">
+<meta name="theme-color" content="#d9dde2">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="專案管理題庫">
@@ -15,337 +14,318 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@700;900&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700;900&display=swap">
 <style>
-/* Layout: the NPMA chart redrawn as a grid — stage chevrons on top, release box and iteration box nested below — every label a tap-to-reveal blank. */
+/* Layout: a faithful redraw of the printed NPMA chart on a fixed 1800×1130 canvas (scaled to fit, zoomable),
+   every label replaced by a tap-to-reveal blank in the same spot. Deliberately single (paper) theme, like the handout. */
 :root{
   padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
-  --paper:#eef1f4; --sheet:#ffffff; --ink:#18222e; --muted:#5b6876; --rule:#d5dbe2;
-  --accent:#2340b8;
-  --stage:#2c5aa0; --stage-soft:#e4ecf8;
-  --rel:#d9732f; --rel-soft:#fbeee3;
-  --it:#a8323a; --it-soft:#f8e6e7;
-  --good:#17845a; --bad:#c43a4f; --bad-soft:#fbe5e9;
-  --blank:#f3f5f8; --blank-line:#aab4c0;
-  --po:#2f9a4a; --coach:#7b4fc4; --member:#b8432f; --tester:#2f6fc4; --sponsor:#c99a1c; --stake:#d8b42a;
-  --f-display:"Noto Serif TC","Songti TC",serif;
+  color-scheme:light;
+  --desk:#d9dde2; --paper:#ffffff; --ink:#1d2430; --muted:#5d6672; --accent:#2340b8;
+  --blue:#2b5ea8; --blue-hi:#5d8fd6; --orange:#e2803a; --orange-soft:#f9d8b2; --peach:#fbe7d0;
+  --red:#9c2f2f; --pink:#f3cbc6; --green:#8cc06a; --green-soft:#e6f2da;
+  --bad:#d4344d;
+  --f-serif:"Noto Serif TC","Songti TC",serif;
   --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
-  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --paper:#11161c; --sheet:#19212a; --ink:#e6ebf1; --muted:#97a3b1; --rule:#2c3743; --accent:#8ea2ff;
-  --stage:#7fa6e6; --stage-soft:#1c2a40; --rel:#f0a066; --rel-soft:#38261a; --it:#ef8a90; --it-soft:#3a1d21;
-  --good:#4cc792; --bad:#f07689; --bad-soft:#3d1c24; --blank:#222c37; --blank-line:#4a5866;
-  --po:#5cc777; --coach:#a989f0; --member:#f0806b; --tester:#6fa6f0; --sponsor:#e6c04e; --stake:#ecd06a; color-scheme:dark}}
-:root[data-theme="dark"]{
-  --paper:#11161c; --sheet:#19212a; --ink:#e6ebf1; --muted:#97a3b1; --rule:#2c3743; --accent:#8ea2ff;
-  --stage:#7fa6e6; --stage-soft:#1c2a40; --rel:#f0a066; --rel-soft:#38261a; --it:#ef8a90; --it-soft:#3a1d21;
-  --good:#4cc792; --bad:#f07689; --bad-soft:#3d1c24; --blank:#222c37; --blank-line:#4a5866;
-  --po:#5cc777; --coach:#a989f0; --member:#f0806b; --tester:#6fa6f0; --sponsor:#e6c04e; --stake:#ecd06a; color-scheme:dark}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.55;
-  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 120px}
-.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
-h1,h2,h3{font-family:var(--f-display);margin:0;line-height:1.3;text-wrap:balance}
-h1{font-size:clamp(22px,3.6vw,30px);font-weight:900}
-h2{font-size:15px;font-weight:700}
-header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:10px;border-bottom:2px solid var(--ink);padding-bottom:12px}
-header p{margin:2px 0 0;color:var(--muted);font-size:13px}
-a.back{color:var(--muted);font-size:13px}
-.label{font-size:12px;letter-spacing:.08em;color:var(--muted);font-weight:500}
-.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+body{margin:0;background:var(--desk);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.5;
+  padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px));padding-block:10px 40px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--desk)}
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:8px;position:sticky;top:env(safe-area-inset-top,0px);z-index:6;background:var(--desk);padding-block:8px}
+.top a{color:var(--muted);font-size:13px;margin-right:4px}
+.top button{font:inherit;font-size:13px;border:1px solid #b9c0c8;background:#fff;color:var(--ink);border-radius:999px;padding:5px 12px;cursor:pointer}
+.top button.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.top button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.top .count{font-size:13px;color:var(--muted);margin-left:auto}
+.top .count b{color:var(--ink)} .top .count .w{color:var(--bad)}
+.zoom{display:inline-flex;gap:4px}
+.zoom button{padding:5px 10px}
+.hintline{font-size:12px;color:var(--muted);margin:0 0 8px}
+.viewport{overflow:auto;border-radius:6px;box-shadow:0 1px 0 #c3c9d0,0 6px 24px rgba(30,40,60,.12);background:var(--paper);max-height:calc(100vh - 110px);-webkit-overflow-scrolling:touch}
+.sizer{position:relative}
+.canvas{position:absolute;left:0;top:0;width:1800px;height:1130px;transform-origin:0 0;background:var(--paper)}
+.canvas svg{position:absolute;inset:0;width:1800px;height:1130px}
+.fixed{position:absolute;font-family:var(--f-serif);font-weight:700;color:var(--ink);white-space:nowrap;pointer-events:none}
 
-/* toolbar: sticky so controls stay reachable while scrolling the chart */
-.tools{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);padding-block:10px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-bottom:1px solid var(--rule)}
-body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
-.tools button{font:inherit;font-size:13px;border:1px solid var(--rule);background:var(--sheet);color:var(--ink);border-radius:999px;padding:5px 12px;cursor:pointer}
-.tools button.primary{background:var(--accent);border-color:var(--accent);color:var(--sheet);font-weight:700}
-.tools button[aria-pressed="true"]{background:var(--ink);color:var(--sheet);border-color:var(--ink)}
-.tools .count{margin-left:auto;font-size:13px;color:var(--muted)}
-.tools .count b{color:var(--ink)}
-.tools .count .bad{color:var(--bad)}
-.howto{font-size:12.5px;color:var(--muted);margin:0}
-
-/* chart grid */
-.chart{display:grid;gap:14px;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,3.2fr) minmax(0,1.15fr);
-  grid-template-areas:
-   "sFeas sInit sRel sClose"
-   "feas  init  rel  close"
-   "roles roles iter iter"}
-@media (max-width:980px){.chart{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:
-   "sFeas sInit" "sRel sClose" "feas init" "rel rel" "iter iter" "close close" "roles roles"}}
-@media (max-width:560px){.chart{grid-template-columns:minmax(0,1fr);grid-template-areas:
-   "sFeas" "feas" "sInit" "init" "sRel" "rel" "iter" "sClose" "close" "roles"}}
-.a-sFeas{grid-area:sFeas}.a-sInit{grid-area:sInit}.a-sRel{grid-area:sRel}.a-sClose{grid-area:sClose}
-.a-feas{grid-area:feas}.a-init{grid-area:init}.a-rel{grid-area:rel}.a-close{grid-area:close}.a-iter{grid-area:iter}.a-roles{grid-area:roles}
-
-/* stage chevrons */
-.chev{background:var(--stage);color:#fff;clip-path:polygon(0 0,calc(100% - 16px) 0,100% 50%,calc(100% - 16px) 100%,0 100%,12px 50%);padding:12px 26px 12px 22px;min-height:58px;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}
-.chev.rel{background:var(--rel);flex-direction:column}
-.chev .tagline{font-size:11px;opacity:.85;letter-spacing:.08em}
-.chev .b{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.55);color:#fff;font-weight:700;font-size:15px}
-.chev .b.hid{background:rgba(255,255,255,.12)}
-.chev .b.hid .ph{color:rgba(255,255,255,.85)}
-.subs{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
-.subs .b{font-size:13px;font-weight:500}
-
-/* panels */
-.panel{background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:12px;min-width:0;align-self:start}
-.panel.rel{background:var(--rel-soft);border-color:var(--rel)}
-.panel.iter{background:var(--it-soft);border-color:var(--it)}
-.rowlab{display:flex;align-items:center;gap:8px}
-.rowlab::after{content:"";flex:1;border-top:1px dashed var(--rule)}
-.list{display:flex;flex-direction:column;gap:6px;margin:0;padding:0;list-style:none}
-.list li{display:flex;gap:6px;align-items:flex-start}
-.list li::before{content:"•";color:var(--muted);line-height:2}
-.outs{display:flex;flex-wrap:wrap;gap:6px}
-.title-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
-.title-row h2{color:var(--rel)}
-.panel.iter .title-row h2{color:var(--it)}
-
-/* flow inside release / iteration */
-.flow{display:flex;flex-wrap:wrap;align-items:flex-start;gap:6px}
-.flow .arrow{align-self:center;color:var(--muted);font-size:16px}
-.step{flex:1 1 150px;align-self:stretch;min-width:0;background:var(--sheet);border:1px solid var(--rule);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:8px}
-.panel.rel .step{border-color:color-mix(in srgb,var(--rel) 45%,var(--rule))}
-.panel.iter .step{border-color:color-mix(in srgb,var(--it) 45%,var(--rule))}
-.step.head > .b{font-weight:700}
-.loop{flex:2 1 220px;background:transparent;border:1.5px dashed var(--rel)}
-.panel.iter .loop{border-color:var(--it)}
-.lanes{display:flex;flex-direction:column;gap:8px;flex:3 1 260px;min-width:0}
-.panel.iter .step{align-self:flex-start}
-.lane{background:var(--sheet);border:1px solid var(--rule);border-left:4px solid var(--rule);border-radius:8px;padding:8px 10px;display:flex;flex-direction:column;gap:6px}
-.lane.po{border-left-color:var(--po)} .lane.tester{border-left-color:var(--tester)} .lane.member{border-left-color:var(--member)}
-.who{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
-.dot{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}
-.d-po{background:var(--po)} .d-coach{background:var(--coach)} .d-member{background:var(--member)} .d-tester{background:var(--tester)} .d-sponsor{background:var(--sponsor)} .d-stake{background:var(--stake)}
-.quad{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;max-width:220px}
-.note{font-size:13px;border-left:3px solid var(--rel);padding:6px 10px;background:var(--sheet);border-radius:0 6px 6px 0}
-
-/* roles */
-.roles-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2.4fr);gap:8px}
-.rbox{border:1px solid var(--rule);border-radius:8px;padding:8px;display:flex;flex-direction:column;gap:6px;align-items:flex-start}
-.rbox.team{background:color-mix(in srgb,var(--good) 8%,var(--sheet))}
-.rbox .inner{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start}
-.person{display:flex;align-items:center;gap:6px}
-
-/* the blank itself */
-.b{font:inherit;color:var(--ink);background:var(--sheet);border:1px solid var(--rule);border-radius:6px;padding:3px 8px;cursor:pointer;text-align:left;line-height:1.5;min-height:30px;max-width:100%;overflow-wrap:anywhere}
-.b.hid{background:var(--blank);border:1px dashed var(--blank-line)}
-.b.hid .a{display:none}
+/* blanks */
+.b{position:absolute;font:inherit;font-family:var(--f-body);font-size:15px;line-height:20px;color:var(--ink);padding:1px 3px;margin:0;
+  border:1px solid transparent;border-radius:3px;background:transparent;cursor:pointer;text-align:left;white-space:pre;-webkit-tap-highlight-color:transparent}
+.b.c{text-align:center}
+.b.serif{font-family:var(--f-serif);font-weight:700}
+.b.light{color:#fff}
+.b.hid{background:rgba(255,255,255,.9);border:1px dashed #7d8794}
+.b.light.hid{background:rgba(255,255,255,.22);border-color:rgba(255,255,255,.8)}
+.b.hid .a{visibility:hidden}
+.b .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#8a93a0;font-size:12px;letter-spacing:.12em;pointer-events:none}
+.b.light .ph{color:rgba(255,255,255,.9)}
 .b:not(.hid) .ph{display:none}
-.b .ph{color:var(--muted);letter-spacing:.15em;font-family:var(--f-mono)}
-.b.weak{border:1.5px solid var(--bad);background:var(--bad-soft)}
-.b.weak.hid{border-style:dashed}
+.b.weak{border:2px solid var(--bad)!important;background:rgba(255,226,231,.92)}
+.b.weak.light{background:rgba(212,52,77,.35)}
+.b.weak.hid{border-style:dashed!important}
 .b.flash{outline:3px solid var(--accent);outline-offset:2px}
-.b:focus-visible,.tools button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted)}
-.legend span{display:inline-flex;align-items:center;gap:6px}
-.sw{width:22px;height:14px;border-radius:3px;display:inline-block}
-.sw.h{background:var(--blank);border:1px dashed var(--blank-line)} .sw.s{background:var(--sheet);border:1px solid var(--rule)} .sw.w{background:var(--bad-soft);border:1.5px solid var(--bad)}
+.b:focus-visible,.top button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.credit{font-size:12px;color:var(--muted);margin-top:8px}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <div>
-      <h1>敏捷專案管理架構圖・默寫</h1>
-      <p>NPMA 中華專案管理學會版本。點灰色格子翻開答案，翻開後再點一次可以標成「不熟」。</p>
-    </div>
-    <a class="back" href="./">← 回題庫</a>
-  </header>
-
-  <div class="tools" role="toolbar" aria-label="默寫工具">
-    <button class="primary" id="nextBtn">翻下一格</button>
-    <button id="hideAll">全部遮住</button>
-    <button id="showAll">全部顯示</button>
-    <button id="weakOnly">只遮不熟的</button>
-    <button id="hintBtn" aria-pressed="false">字數提示</button>
-    <span class="count" id="count"></span>
-  </div>
-  <div class="legend"><span><i class="sw h"></i>還沒翻</span><span><i class="sw s"></i>已翻開</span><span><i class="sw w"></i>不熟（會記在這支手機）</span><span><i class="dot d-po"></i>產品負責人</span><span><i class="dot d-coach"></i>敏捷教練</span><span><i class="dot d-member"></i>團隊成員</span><span><i class="dot d-tester"></i>測試者</span><span><i class="dot d-sponsor"></i>贊助者</span></div>
-
-  <div class="chart" id="chart">
-    <!-- stage row -->
-    <div class="chev a-sFeas" data-s="stage"><button class="b">可行性分析</button></div>
-    <div class="chev a-sInit" data-s="stage"><button class="b">起始</button></div>
-    <div class="chev rel a-sRel" data-s="stage">
-      <button class="b">發布循環</button>
-      <div class="subs"><button class="b">發布1</button><button class="b">發布2</button><button class="b">……</button><button class="b">發布n</button></div>
-    </div>
-    <div class="chev a-sClose" data-s="stage"><button class="b">結束</button></div>
-
-    <!-- 可行性分析 -->
-    <section class="panel a-feas" data-s="feas" aria-label="可行性分析">
-      <div class="rowlab"><span class="label">工作事項</span></div>
-      <ul class="list"><li><button class="b">建立專案願景</button></li><li><button class="b">準備營運企劃案</button></li></ul>
-      <div class="rowlab"><span class="label">產出</span></div>
-      <div class="outs"><button class="b">產品盒</button><button class="b">營運企劃案</button></div>
-    </section>
-
-    <!-- 起始 -->
-    <section class="panel a-init" data-s="init" aria-label="起始">
-      <div class="rowlab"><span class="label">工作事項</span></div>
-      <ul class="list">
-        <li><button class="b">發展專案章程</button></li>
-        <li><button class="b">辨識角色</button></li>
-        <li><button class="b">建立產品待辦清單</button></li>
-        <li><button class="b">進行高階估算</button></li>
-        <li><button class="b">建立產品地圖（用戶故事地圖）</button></li>
-      </ul>
-      <div class="rowlab"><span class="label">產出</span></div>
-      <div class="outs"><button class="b">專案章程</button><button class="b">角色卡</button><button class="b">產品待辦清單</button><button class="b">高階估算（T 恤尺寸卡）</button><button class="b">產品地圖（用戶故事地圖）</button><button class="b">產品待辦清單（發布1、發布2、發布3）</button></div>
-    </section>
-
-    <!-- 單一發布內的工作 -->
-    <section class="panel rel a-rel" data-s="rel" aria-label="單一發布內的工作">
-      <div class="title-row"><h2>單一發布內的工作</h2></div>
-      <div class="flow">
-        <div class="step head">
-          <button class="b">發布規劃</button>
-          <ul class="list">
-            <li><button class="b">分解用戶故事</button></li>
-            <li><button class="b">定義驗收標準／定義什麼是完成</button></li>
-            <li><button class="b">估算用戶故事點數（玩撲克牌）</button></li>
-            <li><button class="b">建立發布待辦清單</button></li>
-          </ul>
-        </div>
-        <span class="arrow" aria-hidden="true">→</span>
-        <div class="step head">
-          <button class="b">刺探</button>
-          <span class="who"><i class="dot d-member"></i><i class="dot d-po"></i></span>
-          <button class="b">蒐集下一迭代用戶故事細節資料</button>
-        </div>
-        <span class="arrow" aria-hidden="true">→</span>
-        <div class="step loop head">
-          <button class="b">迭代循環</button>
-          <div class="outs"><button class="b">迭代1</button><button class="b">迭代2</button><button class="b">……</button><button class="b">迭代n</button></div>
-        </div>
-        <span class="arrow" aria-hidden="true">→</span>
-        <div class="step head">
-          <button class="b">發布與回顧</button>
-          <ul class="list">
-            <li><button class="b">發布增量產品／成果</button></li>
-            <li><button class="b">進行發布回顧會議</button></li>
-          </ul>
-        </div>
-      </div>
-      <div class="rowlab"><span class="label">產出</span></div>
-      <div class="outs"><button class="b">分解為小的用戶故事</button><button class="b">撲克牌點數</button><button class="b">發布待辦清單</button><button class="b">產品待辦清單</button><button class="b">增量產品／成果</button><button class="b">停車場圖</button></div>
-      <div class="rowlab"><span class="label">回饋（四格）</span></div>
-      <div class="quad"><button class="b">開始做</button><button class="b">停止做</button><button class="b">多做些</button><button class="b">少做些</button></div>
-      <div class="rowlab"><span class="label">發布結束後</span></div>
-      <div class="note"><button class="b">不是最終發布 → 進行下一個發布規劃；是最終發布 → 直接進入結束流程</button></div>
-    </section>
-
-    <!-- 結束 -->
-    <section class="panel a-close" data-s="close" aria-label="結束">
-      <div class="rowlab"><span class="label">工作事項</span></div>
-      <ul class="list"><li><button class="b">專案產品／成果</button></li><li><button class="b">專案回顧會議</button></li><li><button class="b">結束專案活動</button></li></ul>
-    </section>
-
-    <!-- 單一迭代內的工作 -->
-    <section class="panel iter a-iter" data-s="iter" aria-label="單一迭代內的工作">
-      <div class="title-row"><h2>單一迭代內的工作</h2></div>
-      <div class="flow">
-        <div class="step head"><button class="b">迭代規劃（細部規劃）</button></div>
-        <span class="arrow" aria-hidden="true">→</span>
-        <div class="step head"><button class="b">每日站立會議</button></div>
-        <span class="arrow" aria-hidden="true">→</span>
-        <div class="lanes">
-          <div class="lane po"><span class="who"><i class="dot d-po"></i>產品負責人</span>
-            <ul class="list"><li><button class="b">準備回答問題</button></li><li><button class="b">確認用戶故事</button></li><li><button class="b">蒐集下一迭代用戶故事細節</button></li></ul></div>
-          <div class="lane tester"><span class="who"><i class="dot d-tester"></i>測試者</span>
-            <ul class="list"><li><button class="b">執行驗收測試</button></li><li><button class="b">準備測試案例</button></li><li><button class="b">測試新增的已完成增量產品</button></li></ul>
-            <div class="outs"><button class="b">除錯</button></div></div>
-          <div class="lane member"><span class="who"><i class="dot d-member"></i>團隊成員</span>
-            <ul class="list"><li><button class="b">完成增量產品</button></li></ul></div>
-        </div>
-        <span class="arrow" aria-hidden="true">→</span>
-        <div class="step head"><button class="b">持續更新專案報告</button></div>
-        <span class="arrow" aria-hidden="true">→</span>
-        <div class="step head"><button class="b">進行迭代審查與回顧會議</button></div>
-      </div>
-      <div class="rowlab"><span class="label">產出</span></div>
-      <div class="outs"><button class="b">用戶故事</button><button class="b">工作1、工作2、工作3</button><button class="b">測試案例</button><button class="b">迭代1待辦清單</button><button class="b">發布1待辦清單</button><button class="b">用戶故事看板</button><button class="b">燃盡圖</button></div>
-      <div class="rowlab"><span class="label">回饋（四格）</span></div>
-      <div class="quad"><button class="b">開始做</button><button class="b">停止做</button><button class="b">多做些</button><button class="b">少做些</button></div>
-    </section>
-
-    <!-- 角色 -->
-    <section class="panel a-roles" data-s="roles" aria-label="角色">
-      <div class="rowlab"><span class="label">角色（圖左下角）</span></div>
-      <div class="roles-grid">
-        <div class="rbox">
-          <button class="b">利害關係人</button>
-          <span class="person"><i class="dot d-sponsor"></i><button class="b">贊助者</button></span>
-        </div>
-        <div class="rbox team">
-          <button class="b">敏捷團隊</button>
-          <div class="inner">
-            <span class="person"><i class="dot d-po"></i><button class="b">產品負責人</button></span>
-            <span class="person"><i class="dot d-coach"></i><button class="b">敏捷教練</button></span>
-            <div class="rbox" style="background:var(--sheet)">
-              <button class="b">開發團隊</button>
-              <div class="inner">
-                <span class="person"><i class="dot d-member"></i><button class="b">團隊成員</button></span>
-                <span class="person"><i class="dot d-tester"></i><button class="b">測試者</button></span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  </div>
-  <p class="howto">練習方式：先按「全部遮住」，在紙上或腦中默寫一格，再點開對答案。想不出來的翻開後再點一次標成不熟，之後用「只遮不熟的」重練。</p>
+<div class="top" role="toolbar" aria-label="默寫工具">
+  <a href="./">← 題庫</a>
+  <button class="primary" id="nextBtn">翻下一格</button>
+  <button id="hideAll">全部遮住</button>
+  <button id="showAll">全部顯示</button>
+  <button id="weakOnly">只遮不熟的</button>
+  <button id="hintBtn" aria-pressed="false">字數提示</button>
+  <span class="zoom"><button id="zOut" aria-label="縮小">－</button><button id="zFit">整張</button><button id="zIn" aria-label="放大">＋</button></span>
+  <span class="count" id="count"></span>
 </div>
+<p class="hintline">點虛線框翻開答案；翻開後再點一次標成「不熟」（紅框，會記在這支手機）。手機建議橫放，或用＋放大後左右滑動。</p>
+
+<div class="viewport" id="vp"><div class="sizer" id="sizer"><div class="canvas" id="cv"><svg id="art" viewBox="60 300 1800 1130" aria-hidden="true"></svg></div></div></div>
+<p class="credit">依 NPMA 中華專案管理學會「敏捷專案管理架構圖」版面重繪，僅供個人默寫練習；插圖為簡化示意。</p>
 
 <script>
-const KEY='pm-chart-v1';
-let weak={};
-try{ weak=JSON.parse(localStorage.getItem(KEY)||'{}')||{}; }catch(e){ weak={}; }
-const save=()=>{ try{ localStorage.setItem(KEY,JSON.stringify(weak)); }catch(e){} };
-const blanks=[...document.querySelectorAll('#chart .b')];
-const seen={};
-blanks.forEach(b=>{
-  const text=b.textContent.trim();
-  const sec=b.closest('[data-s]').dataset.s;
-  const base=sec+'|'+text; seen[base]=(seen[base]||0)+1;
-  b.dataset.k=base+'|'+seen[base];
-  b.dataset.len=[...text.replace(/[（）()、／→；\s]/g,'')].length;
-  b.innerHTML=`<span class="a">${b.innerHTML}</span><span class="ph" aria-hidden="true"></span>`;
-  b.setAttribute('aria-label','空格，點一下翻開');
+/* ---------- coordinates: same system as the original photo (x 60–1860, y 300–1430) ---------- */
+const OX=60, OY=300;
+const C={blue:'#2b5ea8',blueHi:'#6f9be0',orange:'#e2803a',orangeHi:'#f2a865',peach:'#fbe3c8',peachLine:'#eeb27c',
+  red:'#9c2f2f',redHi:'#c0504d',pink:'#f5d0cb',pinkLine:'#d98c86',band:'#f6c9cf',green:'#8cc06a',greenSoft:'#e3f0d6',
+  ink:'#1d2430',grey:'#9aa3ae',po:'#2f9a4a',coach:'#7b4fc4',member:'#b8432f',tester:'#2f6fc4',sponsor:'#c99a1c',stake:'#e8bb2c'};
+let svg='';
+const add=s=>svg+=s;
+const chevron=(x1,y1,x2,y2,fill,notch=22)=>{const m=(y1+y2)/2;add(`<polygon points="${x1},${y1} ${x2-notch},${y1} ${x2},${m} ${x2-notch},${y2} ${x1},${y2} ${x1+notch},${m}" fill="${fill}"/>`);};
+const ghostChev=(x,y1,y2,fill)=>{const m=(y1+y2)/2;add(`<polygon points="${x},${y1} ${x+14},${y1} ${x+30},${m} ${x+14},${y2} ${x},${y2} ${x+16},${m}" fill="${fill}" opacity=".55"/>`);};
+const rect=(x,y,w,h,fill,stroke='none',r=14,sw=2)=>add(`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>`);
+const arrow=(pts,color=C.red,w=3)=>{const d='M'+pts.map(p=>p.join(' ')).join(' L');add(`<path d="${d}" fill="none" stroke="${color}" stroke-width="${w}" marker-end="url(#ah-${color.slice(1)})"/>`);};
+const person=(x,y,col,s=1,prop='')=>{
+  add(`<g transform="translate(${x} ${y}) scale(${s})"><ellipse cx="0" cy="22" rx="17" ry="14" fill="${col}"/><circle cx="0" cy="0" r="11" fill="${col}"/><circle cx="-3" cy="-4" r="4" fill="#fff" opacity=".45"/>`);
+  if(prop==='wrench') add(`<rect x="10" y="4" width="16" height="5" rx="2" fill="#8d96a3" transform="rotate(-35 10 4)"/>`);
+  if(prop==='watch') add(`<circle cx="13" cy="20" r="8" fill="#fff" stroke="#6b7480" stroke-width="2"/><path d="M13 15 V20 H17" stroke="#6b7480" stroke-width="1.6" fill="none"/>`);
+  if(prop==='money') add(`<circle cx="-12" cy="24" r="9" fill="#c9a227" stroke="#8a6d10"/><text x="-12" y="28" font-size="11" text-anchor="middle" fill="#fff" font-weight="700">$</text>`);
+  if(prop==='band') add(`<rect x="-11" y="-6" width="22" height="4" fill="#e6e9ee"/>`);
+  add(`</g>`);};
+const crowd=(x,y,s=1)=>{person(x-10,y+4,C.stake,.7*s);person(x+12,y+4,C.stake,.7*s);person(x+1,y-4,C.stake,.8*s);add(`<path d="M${x+22} ${y+18} l6 -10 l3 3" stroke="${C.stake}" stroke-width="4" fill="none"/>`);};
+const team=(x,y,list,s=.8)=>{list.forEach((p,i)=>{const map={po:[C.po,''],coach:[C.coach,'watch'],member:[C.member,'wrench'],tester:[C.tester,'band'],sponsor:[C.sponsor,'money']};person(x+i*30,y+(i%2)*6,map[p][0],s,map[p][1]);});};
+const doc=(x,y,w,h)=>{rect(x,y,w,h,'#fff','#8f98a3',2,1.5);for(let i=1;i<6;i++)add(`<line x1="${x+8}" y1="${y+i*h/7}" x2="${x+w-8}" y2="${y+i*h/7}" stroke="#b8bfc8" stroke-width="2"/>`);};
+const cards=(x,y,n,w,h,fill,stroke='#8f98a3',dx=8,dy=-6)=>{for(let i=n-1;i>=0;i--)rect(x+i*dx,y+i*dy,w,h,fill,stroke,3,1.5);};
+const stackBar=(x,y,h)=>{rect(x,y,26,h,'#3d6fb6','#24497f',2,1.5);for(let i=1;i<6;i++)add(`<line x1="${x}" y1="${y+i*h/6}" x2="${x+26}" y2="${y+i*h/6}" stroke="#fff" stroke-width="1.5"/>`);};
+const sticky=(x,y,c='#f4e36b')=>rect(x,y,22,18,c,'#c9b84a',1,1);
+const quad=(x,y)=>{rect(x-34,y-14,30,70,'#e8eef6','#8f98a3',3,1.5);[[0,0,'#f6c3c8'],[48,0,'#e3f0a8'],[0,40,'#e6cde9'],[48,40,'#cfe0f3']].forEach(([dx,dy,f])=>rect(x+dx,y+dy,44,36,f,'#9aa3ae',6,1));};
+
+add(`<defs>${['9c2f2f','e2803a','2b5ea8','5d6672'].map(c=>`<marker id="ah-${c}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#${c}"/></marker>`).join('')}
+<linearGradient id="gBlue" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4b7cc6"/><stop offset="1" stop-color="#244f93"/></linearGradient>
+<linearGradient id="gOr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f0a463"/><stop offset="1" stop-color="#e07a32"/></linearGradient>
+<linearGradient id="gRed" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b8443f"/><stop offset="1" stop-color="#8a2626"/></linearGradient>
+<linearGradient id="gRel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbe2c4"/><stop offset="1" stop-color="#f6c99a"/></linearGradient>
+<linearGradient id="gIt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7d9d5"/><stop offset="1" stop-color="#eba9a3"/></linearGradient></defs>`);
+
+/* header */
+add(`<g><circle cx="150" cy="322" r="11" fill="#c0392b"/><text x="167" y="331" font-size="26" font-weight="900" fill="#1f4e8c" font-family="Arial,sans-serif">NPMA</text></g>`);
+rect(668,318,826,62,'#2f5f9e','none',10);
+/* row labels box for 階段 */
+rect(118,482,118,34,'none','#555',2,1.2);
+
+/* ===== stage row ===== */
+ghostChev(232,452,548,C.blueHi);
+chevron(262,452,528,548,'url(#gBlue)',26);
+ghostChev(526,452,548,C.blueHi);ghostChev(548,452,548,C.blueHi);
+chevron(548,452,808,548,'url(#gBlue)',26);
+ghostChev(808,452,548,C.orangeHi);
+chevron(826,456,1515,555,'url(#gOr)',28);
+[[862,1018],[1030,1186],[1198,1354],[1366,1508]].forEach(([a,b])=>chevron(a,500,b,548,'#e46f22',16));
+ghostChev(1512,452,548,C.blueHi);
+chevron(1546,452,1800,548,'url(#gBlue)',26);
+/* people above stages */
+team(345,398,['po','sponsor','coach'],.85);crowd(498,402);
+team(615,392,['member','tester','coach','po'],.8);person(698,432,C.sponsor,.8,'money');crowd(785,402);
+team(1000,392,['member','tester','po','member'],.8);person(1100,428,C.sponsor,.8,'money');team(1130,398,['coach'],.8);crowd(1180,402);
+crowd(1675,390);team(1620,415,['po'],.8);person(1670,440,C.sponsor,.8,'money');team(1720,418,['member'],.8);
+
+/* 可行性分析 outputs */
+rect(290,698,52,82,'#a8262b','#6d1416',3);rect(330,690,52,82,'#c1393b','#6d1416',3);rect(296,712,40,22,'#e8c35c','none',2);
+add(`<g transform="rotate(-8 300 880)">`);rect(272,858,96,62,'#eef1f4','#8f98a3',3);for(let i=0;i<4;i++)for(let j=0;j<6;j++)rect(278+j*14,864+i*12,11,8,'#c9d1db','none',1);add(`</g>`);
+rect(282,900,46,40,'#d5dae0','#7d8794',4,1.5);
+
+/* 起始 outputs */
+doc(565,690,98,98);
+rect(552,828,62,58,'#fff','#8f98a3',2);rect(620,828,64,58,'#fff','#8f98a3',2);rect(640,834,30,22,'#c9b8a8','none',2);
+cards(556,940,4,110,58,'#fff');
+add(`<g>`);[[536,1076,'XS'],[566,1066,'S'],[600,1062,'M'],[634,1068,'L'],[662,1080,'XL']].forEach(([x,y,t],i)=>{add(`<g transform="rotate(${-20+i*10} ${x+22} ${y+30})">`);rect(x,y,44,58,'#fff','#2b5ea8',4,3);add(`<text x="${x+22}" y="${y+36}" font-size="15" text-anchor="middle" font-weight="900" fill="#2b5ea8" font-family="Arial">${t}</text></g>`);});add(`</g>`);
+rect(498,1178,136,82,'#f4f6fa','#8f98a3',3);[[504,1186,'#f6c3c8'],[540,1186,'#cfe0f3'],[576,1186,'#e3f0a8'],[504,1212,'#cfe0f3'],[540,1212,'#e6cde9'],[576,1212,'#f6c3c8'],[504,1236,'#e3f0a8'],[540,1236,'#cfe0f3']].forEach(([x,y,f])=>rect(x,y,30,18,f,'none',2));
+stackBar(652,1165,95);
+
+/* ===== release box ===== */
+add(`<rect x="1148" y="560" width="52" height="16" fill="${C.orange}"/><polygon points="1132,576 1216,576 1174,600" fill="${C.orange}"/>`);
+rect(722,604,870,350,'url(#gRel)','#e9a46b',22,2);
+ghostChev(724,650,712,C.orangeHi);
+chevron(742,650,902,712,'url(#gOr)',20);ghostChev(900,650,712,C.orangeHi);
+team(770,612,['po','member','tester','coach'],.75);
+person(952,612,C.member,.75,'wrench');
+add(`<circle cx="958" cy="668" r="18" fill="#fff" stroke="#5d6672" stroke-width="3"/><line x1="972" y1="680" x2="1008" y2="702" stroke="#5d6672" stroke-width="5"/>`);
+person(950,718,C.po,.8);
+rect(1040,756,62,42,'#e3edf9','#7d8794',3);rect(1062,760,44,36,'#fff','#7d8794',2);
+add(`<rect x="1018" y="640" width="400" height="84" fill="${C.band}" opacity=".9"/>`);
+[[1028,1128],[1135,1235],[1242,1322],[1316,1414]].forEach(([a,b])=>chevron(a,682,b,716,'#a63a42',14));
+ghostChev(1414,650,722,C.orangeHi);
+chevron(1430,650,1586,722,'url(#gOr)',20);
+team(1440,612,['po','member','tester','coach'],.75);
+[[770,872],[796,880],[782,896],[808,862]].forEach(([x,y])=>sticky(x,y));
+[0,1,2,3,4,5,6].forEach(i=>{add(`<g transform="rotate(${-40+i*12} 945 920)">`);rect(925,852,40,60,'#fff','#555',3,1.5);add(`</g>`);});
+add(`<g transform="rotate(10 955 880)">`);rect(940,852,40,58,'#fff','#222',3,2);add(`<text x="960" y="890" font-size="22" text-anchor="middle" font-weight="900">1</text></g>`);
+add(`<rect x="1058" y="826" width="26" height="12" fill="#f3a7a7"/>`);stackBar(1058,840,82);
+rect(1384,786,72,48,'#f0f2f5','#7d8794',3);person(1412,800,'#3a3f47',.7);rect(1380,830,80,18,'#6b4a33','none',2);
+rect(1466,780,88,58,'#f7f8f9','#7d8794',2);[[1472,786,'#7cc576'],[1490,786,'#f2e35a'],[1508,786,'#f2e35a'],[1528,786,'#e85b52'],[1472,808,'#f2e35a'],[1490,808,'#f2e35a'],[1528,808,'#f2e35a']].forEach(([x,y,f])=>rect(x,y,14,16,f,'none',1));
+quad(1452,880);
+add(`<path d="M1562 920 H1582 V728" fill="none" stroke="${C.red}" stroke-width="6" marker-end="url(#ah-9c2f2f)"/>`);
+/* 結束 pictures */
+rect(1640,640,124,100,'#f3f5f8','#c3c9d0',4,1);[[1660,700],[1690,690],[1730,700]].forEach(([x,y])=>person(x,y,'#3a3f47',.8));add(`<polyline points="1665,670 1690,660 1712,668 1745,645" fill="none" stroke="#c0392b" stroke-width="3"/>`);
+rect(1650,762,128,108,'#ece6f5','none',40);person(1690,800,'#2c3e66',.9);person(1740,792,'#2c3e66',.9);[[1665,775,'#f2c94c'],[1760,770,'#eb5757'],[1700,850,'#6fcf97'],[1750,845,'#bb6bd9']].forEach(([x,y,f])=>add(`<circle cx="${x}" cy="${y}" r="5" fill="${f}"/>`));
+
+/* ===== big arrow to iteration ===== */
+add(`<rect x="1162" y="730" width="44" height="210" fill="${C.red}"/><polygon points="1130,936 1238,936 1184,982" fill="${C.red}"/>`);
+
+/* ===== iteration box ===== */
+rect(712,988,1124,410,'url(#gIt)','#e09a94',22,2);
+const rb=(x,y,w,h)=>rect(x,y,w,h,'url(#gRed)','#6d1c1c',8,1.5);
+rb(745,1140,200,56);rb(966,1140,166,56);rb(1186,1034,222,68);rb(1186,1140,222,66);rb(1186,1268,222,58);rb(1430,1140,176,56);rb(1626,1140,182,56);
+team(765,1072,['po','member','tester','coach'],.8);
+team(985,1072,['po','member','tester','coach'],.8);
+team(1450,1072,['po','member','tester','coach'],.8);
+team(1645,1072,['po','member','tester','coach'],.8);
+person(1214,996,C.coach,.75,'watch');person(1345,1000,C.po,.95);
+person(1320,1118,C.tester,.8,'band');add(`<circle cx="1352" cy="1124" r="9" fill="#fff" stroke="#c0392b" stroke-width="2"/><line x1="1346" y1="1118" x2="1358" y2="1130" stroke="#c0392b" stroke-width="2"/>`);
+rect(1252,1104,58,22,'#f3f1ec','#b9b2a6',2,1);
+person(1318,1246,C.member,.8,'wrench');
+rect(1330,1296,86,46,'#f7eeb6','#c9b84a',2,1);add(`<text x="1373" y="1312" font-size="10" text-anchor="middle" font-family="monospace" fill="#333">010010100010</text><text x="1373" y="1324" font-size="10" text-anchor="middle" font-family="monospace" fill="#333">100011101010</text><text x="1373" y="1336" font-size="10" text-anchor="middle" font-family="monospace" fill="#333">101010000100</text>`);
+arrow([[724,1168],[742,1168]]);arrow([[945,1168],[963,1168]]);
+arrow([[1132,1160],[1183,1070]]);arrow([[1132,1168],[1183,1172]]);arrow([[1132,1178],[1183,1296]]);
+arrow([[1408,1070],[1428,1150]]);arrow([[1408,1172],[1428,1168]]);arrow([[1408,1296],[1428,1186]]);
+arrow([[1606,1168],[1623,1168]]);arrow([[1808,1168],[1830,1168]]);
+/* iteration outputs */
+rect(752,1228,104,58,'#fff','#8f98a3',2);for(let i=1;i<5;i++)add(`<line x1="760" y1="${1228+i*11}" x2="848" y2="${1228+i*11}" stroke="#c3c9d0" stroke-width="2"/>`);
+arrow([[804,1288],[754,1306]],'#5d6672',2);arrow([[804,1288],[806,1306]],'#5d6672',2);arrow([[804,1288],[860,1306]],'#5d6672',2);
+[[730,'#9b59b6'],[784,'#43a047'],[838,'#3d7fc4']].forEach(([x,f])=>{rect(x,1310,44,36,f,'none',3);rect(x+4,1306,40,8,'#e9edf2','none',2);});
+sticky(900,1208,'#f4e88a');
+add(`<g>`);for(let i=0;i<5;i++)rect(918,1306+i*6,36,4,'#555','none',1);add(`</g>`);
+rect(986,1210,130,64,'#f4f8fb','#8f98a3',2);for(let i=0;i<5;i++)add(`<line x1="${986+i*26}" y1="1210" x2="${986+i*26}" y2="1274" stroke="#b8c0c9"/>`);[[992,1224],[1018,1238],[1044,1222],[1070,1244],[996,1250],[1094,1228]].forEach(([x,y])=>rect(x,y,16,12,'#4f9fd6','none',1));
+rect(986,1306,130,80,'#fff','#8f98a3',2);add(`<polyline points="996,1318 1020,1330 1046,1340 1070,1356 1100,1374" fill="none" stroke="#555" stroke-width="2"/><polyline points="996,1316 1100,1376" fill="none" stroke="#bbb" stroke-dasharray="4 3"/>`);
+quad(1702,1254);
+add(`<path d="M1798 1256 Q1820 1236 1824 1210" fill="none" stroke="${C.red}" stroke-width="6" marker-end="url(#ah-9c2f2f)"/>`);
+
+/* ===== roles box ===== */
+add(`<circle cx="138" cy="1110" r="26" fill="#fff" stroke="#222" stroke-width="2"/><path d="M138 1084 a13 13 0 0 1 0 26 a13 13 0 0 0 0 26 a26 26 0 0 1 0 -52" fill="#222"/><circle cx="138" cy="1097" r="4" fill="#fff"/><circle cx="138" cy="1123" r="4" fill="#222"/>`);
+rect(88,1140,410,182,C.greenSoft,'#7aa95a',0,2);
+add(`<rect x="88" y="1140" width="410" height="26" fill="${C.green}"/><line x1="162" y1="1140" x2="162" y2="1322" stroke="#7aa95a" stroke-width="2"/>`);
+rect(346,1204,150,116,'#f2f8ec','#7aa95a',0,2);
+crowd(122,1176);person(122,1268,C.sponsor,.85,'money');
+person(206,1258,C.po,.9);person(286,1258,C.coach,.9,'watch');person(392,1258,C.member,.9,'wrench');person(456,1258,C.tester,.9,'band');
+
+document.getElementById('art').innerHTML=svg;
+
+/* ---------- blanks: [text, x, y(center of first line), anchor, style] ---------- */
+const B=[
+ // stages
+ ['可行性分析',395,500,'c','serif light big'],['起始',678,500,'c','serif light big'],['發布循環',1170,478,'c','serif big2'],
+ ['發布1',940,525,'c','serif light'],['發布2',1108,525,'c','serif light'],['……',1276,525,'c','serif light'],['發布n',1437,525,'c','serif light'],
+ ['結束',1673,500,'c','serif light big'],
+ // 可行性分析
+ ['• 建立專案願景',282,570],['• 準備營運企劃案',282,592],
+ ['產品盒',336,800,'c'],['營運企劃案',318,955,'c'],
+ // 起始
+ ['• 發展專案章程',540,571],['• 辨識角色',540,593],['• 建立產品待辦清單',540,615],['• 進行高階估算',540,637],['• 建立產品地圖\n  （用戶故事地圖）',540,659],
+ ['專案章程',614,804,'c'],['角色卡',618,904,'c'],['產品待辦清單',612,1026,'c'],['高階估算',612,1158,'c'],
+ ['產品地圖\n（用戶故事地圖）',566,1280,'c'],['產品\n待辦清單',668,1280,'c'],
+ ['發布1',698,1180,'c','sm'],['發布2',698,1212,'c','sm'],['發布3',698,1244,'c','sm'],
+ // 單一發布內的工作
+ ['單一發布內的工作',1330,580,'c','serif big2'],
+ ['發布規劃',822,681,'c','serif light'],['刺探',958,668,'c','sm'],
+ ['迭代循環',1218,656,'c','serif'],
+ ['迭代1',1080,699,'c','serif light sm'],['迭代2',1186,699,'c','serif light sm'],['……',1282,699,'c','serif light sm'],['迭代n',1366,699,'c','serif light sm'],
+ ['發布與\n回顧',1505,676,'c','serif light'],
+ ['• 分解用戶故事',732,742],['• 定義驗收標準／\n  定義什麼是完成',732,764],['• 估算用戶故事點數\n  （玩撲克牌）',732,808],['• 建立發布待辦清單',732,852],
+ ['蒐集下一迭代\n用戶故事細節資料',922,780],
+ ['分解為小的用戶故事',806,930,'c'],['撲克牌點數',948,930,'c'],['發布待辦\n清單',1022,832,'c','sm'],
+ ['發布1',1106,846,'c','sm'],['發布2',1106,876,'c','sm'],['發布3',1106,906,'c','sm'],['產品待辦清單',1070,932,'c'],
+ ['• 發布增量產品／成果',1420,742],['• 進行發布回顧會議',1420,764],
+ ['增量產品／成果',1414,862,'c'],['停車場圖',1512,862,'c'],
+ ['開始做',1474,898,'c','xs'],['停止做',1522,898,'c','xs'],['多做些',1474,938,'c','xs'],['少做些',1522,938,'c','xs'],['回\n饋',1562,900,'c','sm'],
+ ['發布結束後，如果不是最\n終發布，就進行下一個發\n布規劃；如果是最終發布，\n則直接進入結束流程。',1612,886,'','redtxt'],
+ // 結束
+ ['• 專案產品／成果',1622,578],['• 專案回顧會議',1622,600],['• 結束專案活動',1622,622],
+ // 單一迭代內的工作
+ ['單一迭代內的工作',1350,966,'c','serif big2'],
+ ['迭代規劃（細部規劃）',845,1168,'c','light'],['每日站立會議',1049,1168,'c','light'],
+ ['• 準備回答問題',1194,1046,'','light'],['• 確認用戶故事',1194,1068,'','light'],['• 蒐集下一迭代用戶故事細節',1194,1090,'','light sm'],
+ ['除錯',1380,1110,'c'],
+ ['• 執行驗收測試',1194,1152,'','light'],['• 準備測試案例',1194,1174,'','light'],['• 測試新增的已完成增量產品',1194,1196,'','light sm'],
+ ['• 完成增量產品',1200,1297,'','light'],
+ ['• 持續更新專案報告',1440,1168,'','light'],['• 進行迭代審查與回顧\n  會議',1634,1158,'','light'],
+ ['用戶故事',790,1216,'c'],['測試案例',912,1244,'c','sm'],['迭代1\n待辦清單',935,1272,'c','sm'],['發布1\n待辦清單',936,1356,'c','sm'],
+ ['工作\n1',752,1362,'c','sm'],['工作\n2',806,1362,'c','sm'],['工作\n3',860,1362,'c','sm'],
+ ['用戶故事看板',1050,1290,'c'],['燃盡圖',1084,1322,'c','sm'],
+ ['開始做',1724,1272,'c','xs'],['停止做',1772,1272,'c','xs'],['多做些',1724,1312,'c','xs'],['少做些',1772,1312,'c','xs'],['回\n饋',1818,1270,'c','sm'],
+ // 角色
+ ['利害\n關係人',124,1222,'c','sm'],['贊助者',124,1308,'c','sm'],['敏捷團隊',300,1186,'c','serif'],['開發團隊',420,1222,'c','serif'],
+ ['產品負責人',206,1308,'c','sm'],['敏捷教練',286,1308,'c','sm'],['團隊成員',392,1308,'c','sm'],['測試者',456,1308,'c','sm'],
+];
+const FIXED=[
+ ['中華專案管理學會',258,322,20],['National Project Management Association',140,350,15],
+ ['敏 捷 專 案 管 理 架 構 圖',1080,350,32,'#fff','c'],
+ ['參與人員',178,438,17,'','c'],['階　　段',178,500,17,'','c'],['工作事項',178,590,17,'','c'],['產　　出',178,726,17,'','c'],
+];
+const cv=document.getElementById('cv');
+FIXED.forEach(([t,x,y,fs,col,anc])=>{const d=document.createElement('div');d.className='fixed';d.textContent=t;d.style.fontSize=fs+'px';if(col)d.style.color=col;
+  d.style.top=(y-OY-fs*0.7)+'px';cv.appendChild(d);const w=d.getBoundingClientRect().width;d.style.left=(anc==='c'?x-OX-w/2:x-OX)+'px';});
+const SIZE={big:22,big2:20,sm:13,xs:11.5};
+const KEY='pm-chart-v2';let weak={};try{weak=JSON.parse(localStorage.getItem(KEY)||'{}')||{};}catch(e){weak={};}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(weak));}catch(e){}};
+const seen={};const blanks=[];
+B.forEach(([t,x,y,anc='',sty=''])=>{
+  const b=document.createElement('button');b.type='button';b.className='b';
+  sty.split(' ').filter(Boolean).forEach(s=>{ if(SIZE[s]) b.style.fontSize=SIZE[s]+'px'; else if(s==='redtxt'){ b.style.color='#9c2f2f'; b.style.fontWeight='700'; b.style.fontSize='13.5px'; } else b.classList.add(s); });
+  if(anc==='c') b.classList.add('c');
+  const fs=parseFloat(b.style.fontSize)||15; const lh=Math.round(fs*1.35);
+  b.style.lineHeight=lh+'px';
+  b.innerHTML=`<span class="a"></span><span class="ph" aria-hidden="true"></span>`;b.querySelector('.a').textContent=t;
+  cv.appendChild(b);
+  const r=b.getBoundingClientRect();
+  b.style.left=(anc==='c'? x-OX-r.width/2 : x-OX)+'px'; b.style.top=(y-OY-lh/2-2)+'px';
+  const k=t.replace(/\s/g,''); seen[k]=(seen[k]||0)+1; b.dataset.k=k+'|'+seen[k];
+  b.dataset.len=[...t.replace(/[•\s（）()、／，；。…]/g,'')].length;
   if(weak[b.dataset.k]) b.classList.add('weak');
-  b.addEventListener('click',()=>{
-    if(b.classList.contains('hid')){ b.classList.remove('hid'); b.removeAttribute('aria-label'); }
-    else { b.classList.toggle('weak'); if(b.classList.contains('weak')) weak[b.dataset.k]=1; else delete weak[b.dataset.k]; save(); }
-    update();
-  });
+  b.addEventListener('click',()=>{ if(b.classList.contains('hid')){ b.classList.remove('hid'); } else { b.classList.toggle('weak'); if(b.classList.contains('weak')) weak[b.dataset.k]=1; else delete weak[b.dataset.k]; save(); } update(); });
+  blanks.push(b);
 });
 let hint=false;
-function placeholder(b){ return hint ? '○'.repeat(Math.min(+b.dataset.len,14)) : '？'; }
 function update(){
-  blanks.forEach(b=>{ b.querySelector('.ph').textContent=placeholder(b); });
-  const open=blanks.filter(b=>!b.classList.contains('hid')).length;
-  const w=blanks.filter(b=>b.classList.contains('weak')).length;
-  document.getElementById('count').innerHTML=`已翻 <b class="mono">${open}</b>/<span class="mono">${blanks.length}</span>・不熟 <b class="mono bad">${w}</b>`;
+  blanks.forEach(b=>{ b.querySelector('.ph').textContent = hint ? (b.dataset.len>0 ? b.dataset.len+' 字' : '') : '？'; b.setAttribute('aria-label', b.classList.contains('hid')?'空格，點一下翻開':b.textContent); });
+  const open=blanks.filter(b=>!b.classList.contains('hid')).length, w=blanks.filter(b=>b.classList.contains('weak')).length;
+  document.getElementById('count').innerHTML=`已翻 <b>${open}</b>/${blanks.length}・不熟 <b class="w">${w}</b>`;
 }
-function hideWhere(fn){ blanks.forEach(b=>{ if(fn(b)){ b.classList.add('hid'); b.setAttribute('aria-label','空格，點一下翻開'); } else { b.classList.remove('hid'); b.removeAttribute('aria-label'); } }); update(); }
+const hideWhere=fn=>{blanks.forEach(b=>b.classList.toggle('hid',fn(b)));update();};
 document.getElementById('hideAll').onclick=()=>hideWhere(()=>true);
 document.getElementById('showAll').onclick=()=>hideWhere(()=>false);
 document.getElementById('weakOnly').onclick=()=>hideWhere(b=>b.classList.contains('weak'));
-document.getElementById('hintBtn').onclick=e=>{ hint=!hint; e.currentTarget.setAttribute('aria-pressed',String(hint)); update(); };
-document.getElementById('nextBtn').onclick=()=>{
-  const b=blanks.find(x=>x.classList.contains('hid')); if(!b) return;
-  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  b.scrollIntoView({block:'center',behavior:reduce?'auto':'smooth'});
-  b.classList.remove('hid'); b.removeAttribute('aria-label'); b.classList.add('flash'); setTimeout(()=>b.classList.remove('flash'),900); update();
-};
+document.getElementById('hintBtn').onclick=e=>{hint=!hint;e.currentTarget.setAttribute('aria-pressed',String(hint));update();};
+/* reading order: stage row left→right, then each column top→bottom */
+const order=[...blanks];
+document.getElementById('nextBtn').onclick=()=>{const b=order.find(x=>x.classList.contains('hid'));if(!b)return;
+  b.scrollIntoView({block:'center',inline:'center',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+  b.classList.remove('hid');b.classList.add('flash');setTimeout(()=>b.classList.remove('flash'),900);update();};
+
+/* zoom */
+const vp=document.getElementById('vp'),sizer=document.getElementById('sizer');
+const ZKEY='pm-chart-zoom';let z=null;try{z=parseFloat(localStorage.getItem(ZKEY));}catch(e){}
+const fit=()=>Math.min(1,(vp.clientWidth)/1800);
+function applyZoom(v){z=Math.max(.25,Math.min(1.6,v));cv.style.transform=`scale(${z})`;sizer.style.width=1800*z+'px';sizer.style.height=1130*z+'px';try{localStorage.setItem(ZKEY,z);}catch(e){}}
+document.getElementById('zIn').onclick=()=>applyZoom(z*1.25);
+document.getElementById('zOut').onclick=()=>applyZoom(z/1.25);
+document.getElementById('zFit').onclick=()=>applyZoom(fit());
+applyZoom(z&&!isNaN(z)?z:Math.max(fit(),.62));
 hideWhere(()=>true);
-if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{})); }
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}
 </script>
 </body>
 </html>
