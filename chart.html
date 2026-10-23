@@ -92,6 +92,30 @@ body.drag .b:not(.slot){pointer-events:none}
 .b.ok{border:2px solid #17845a!important;background:rgba(223,243,234,.95)}
 .b.light.ok{background:rgba(23,132,90,.5)}
 .b.no{border:2px solid var(--bad)!important;animation:shake .35s}
+.top{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+.top::-webkit-scrollbar{display:none}
+.top>*{flex:none}
+.top .count{padding-left:8px}
+.viewport{touch-action:pan-x pan-y}
+.cands{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.cand{font:inherit;font-size:15px;min-height:44px;background:#fff;border:1px solid #8f98a3;border-radius:8px;padding:8px 12px;text-align:left;color:var(--ink);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.cand:active{background:#e8eeff}
+.cand.no{border-color:var(--bad);background:#ffe5ea;color:var(--bad);animation:shake .35s}
+.b.slot.active{outline:3px solid #f2a900;outline-offset:2px;background:rgba(255,240,190,.97)!important;border-color:#c98a00!important}
+.b.light.slot.active{background:rgba(255,226,140,.6)!important}
+.pool-head .link{background:none;border:0;color:var(--accent);text-decoration:underline;padding:0;font-size:13px;cursor:pointer}
+.pool-head .q{font-weight:700;color:var(--ink);font-size:14px}
+@media (max-width:700px),(max-height:500px){
+  .hintline,.credit{display:none}
+  body{padding-block:2px 12px;padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px))}
+  .top{padding-block:6px}
+  .top button,.reg select{padding:6px 10px}
+  .viewport{max-height:calc(100vh - 64px)}
+  .pool{max-height:42vh}
+  body.drag{padding-bottom:calc(42vh + 12px)}
+  body.drag .viewport{max-height:max(150px,calc(100vh - 42vh - 62px))}
+  .cands{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 </style>
@@ -107,7 +131,7 @@ body.drag .b:not(.slot){pointer-events:none}
   <button id="showAll">全部顯示</button>
   <button id="weakOnly">只遮不熟的</button>
   </span>
-  <span id="dragTools" class="grp" hidden><button class="primary" id="restart">重新洗牌</button></span>
+  <span id="dragTools" class="grp" hidden><button class="primary" id="dragNext">下一格</button><button id="restart">重新洗牌</button></span>
   <button id="hintBtn" aria-pressed="false">字數提示</button>
   <span class="zoom"><button id="zOut" aria-label="縮小">－</button><button id="zFit">整張</button><button id="zIn" aria-label="放大">＋</button></span>
   <span class="count" id="count"></span>
@@ -115,7 +139,7 @@ body.drag .b:not(.slot){pointer-events:none}
 <p class="hintline" id="hintline"></p>
 
 <div class="viewport" id="vp"><div class="sizer" id="sizer"><div class="canvas" id="cv"><svg id="art" viewBox="60 300 1800 1130" aria-hidden="true"></svg></div></div></div>
-<div class="pool" id="pool" hidden><div class="pool-head" id="poolMsg"></div><div class="tiles" id="tiles"></div></div>
+<div class="pool" id="pool" hidden><div class="pool-head" id="poolMsg"></div><div class="cands" id="cands" hidden></div><div class="tiles" id="tiles"></div></div>
 <p class="credit">依 NPMA 中華專案管理學會「敏捷專案管理架構圖」版面重繪，僅供個人默寫練習；插圖為簡化示意。</p>
 
 <script>
@@ -319,7 +343,7 @@ let UI={mode:'flip',region:'all'}; try{ UI=Object.assign(UI,JSON.parse(localStor
 let mode='flip', region=REG[UI.region]?UI.region:'all';
 const saveUI=()=>{ try{ localStorage.setItem('pm-chart-ui',JSON.stringify({mode,region})); }catch(e){} };
 const inRegion=b=>region==='all'||b.dataset.r===region;
-let selTile=null, mistakes=0;
+let selTile=null, mistakes=0, active=null, activeCands=null;
 B.forEach(([t,x,y,anc='',sty=''])=>{
   const b=document.createElement('button');b.type='button';b.className='b';
   sty.split(' ').filter(Boolean).forEach(s=>{ if(SIZE[s]) b.style.fontSize=SIZE[s]+'px'; else if(s==='redtxt'){ b.style.color='#9c2f2f'; b.style.fontWeight='700'; b.style.fontSize='13.5px'; } else b.classList.add(s); });
@@ -334,7 +358,7 @@ B.forEach(([t,x,y,anc='',sty=''])=>{
   b.dataset.len=[...t.replace(/[•\s（）()、／，；。…]/g,'')].length;
   b.dataset.r=regionOf(x,y); b.dataset.ans=t.replace(/^•\s*/,'').replace(/\n\s*/g,'').trim();
   if(weak[b.dataset.k]) b.classList.add('weak');
-  b.addEventListener('click',()=>{ if(mode==='drag'){ if(b.classList.contains('slot')&&!b.dataset.done&&selTile) place(selTile,b); return; } if(b.classList.contains('hid')){ b.classList.remove('hid'); } else { b.classList.toggle('weak'); if(b.classList.contains('weak')) weak[b.dataset.k]=1; else delete weak[b.dataset.k]; save(); } update(); });
+  b.addEventListener('click',()=>{ if(mode==='drag'){ if(b.classList.contains('slot')&&!b.dataset.done){ if(selTile) place(selTile,b); else setActive(b); } return; } if(b.classList.contains('hid')){ b.classList.remove('hid'); } else { b.classList.toggle('weak'); if(b.classList.contains('weak')) weak[b.dataset.k]=1; else delete weak[b.dataset.k]; save(); } update(); });
   blanks.push(b);
 });
 let hint=false;
@@ -349,23 +373,63 @@ function update(){
   } else {
     const left=tilesEl.children.length, done=R.filter(b=>b.dataset.done).length;
     document.getElementById('count').innerHTML=`已放 <b>${done}</b>/${R.length}・放錯 <b class="w">${mistakes}</b>`;
-    poolMsg.innerHTML = left ? `把字卡拖到圖上的藍色虛線框，或先點字卡、再點框。剩 <b>${left}</b> 張・放錯 <b class="w">${mistakes}</b> 次`
-      : `完成！放錯 <b class="w">${mistakes}</b> 次。<button type="button" id="again">再練一次</button>`;
+    const candsEl=document.getElementById('cands');
+    if(!left){ active=null; }
+    const showC=!!(active&&!active.dataset.done);
+    candsEl.hidden=!showC; tilesEl.hidden=showC;
+    poolMsg.innerHTML = !left ? `完成！放錯 <b class="w">${mistakes}</b> 次。<button type="button" id="again">再練一次</button>`
+      : showC ? `<span class="q">黃框這一格是？</span><span>剩 <b>${left}</b> 張・放錯 <b class="w">${mistakes}</b></span><button type="button" class="link" id="seeAll">改看全部字卡</button>`
+      : `點圖上的藍框會出現 6 個選項；也可以把字卡拖進框。剩 <b>${left}</b> 張・放錯 <b class="w">${mistakes}</b> 次 <button type="button" class="link" id="guide">一格一格來</button>`;
     const ag=document.getElementById('again'); if(ag) ag.onclick=startDrag;
+    requestAnimationFrame(fitVP);
+    const sa=document.getElementById('seeAll'); if(sa) sa.onclick=()=>setActive(null);
+    const gd=document.getElementById('guide'); if(gd) gd.onclick=()=>setActive(nextEmpty(null));
   }
 }
+function fitVP(){
+  const pool=document.getElementById('pool'), ph=(mode==='drag'&&!pool.hidden)?pool.offsetHeight:0;
+  const top=document.querySelector('.top').offsetHeight + (getComputedStyle(document.getElementById('hintline')).display==='none'?0:document.getElementById('hintline').offsetHeight+8);
+  vp.style.maxHeight=Math.max(150, innerHeight - top - ph - 18)+'px';
+  document.body.style.paddingBottom = ph ? (ph+12)+'px' : '';
+}
+addEventListener('resize',()=>fitVP());
 const hideWhere=fn=>{blanks.forEach(b=>b.classList.toggle('hid',inRegion(b)&&fn(b)));update();};
 function reapplyWeak(){ blanks.forEach(b=>b.classList.toggle('weak',!!weak[b.dataset.k])); }
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
 function startDrag(){
-  selTile=null; mistakes=0; tilesEl.innerHTML='';
+  selTile=null; mistakes=0; tilesEl.innerHTML=''; if(active) active.classList.remove('active'); active=null; activeCands=null;
   blanks.forEach(b=>{ b.classList.remove('slot','ok','no','over','weak'); delete b.dataset.done; const s=inRegion(b); b.classList.toggle('hid',s); b.classList.toggle('slot',s); });
   shuffle(blanks.filter(inRegion).map(b=>b.dataset.ans)).forEach(a=>{ const t=document.createElement('button'); t.type='button'; t.className='tile'; t.textContent=a; t.dataset.ans=a; bindTile(t); tilesEl.appendChild(t); });
   update();
+  if(matchMedia('(pointer: coarse)').matches || innerWidth<700) setActive(nextEmpty(null)); else focusRegion();
 }
+function nextEmpty(after){ const R=blanks.filter(b=>inRegion(b)&&b.classList.contains('slot')&&!b.dataset.done); if(!after) return R[0]||null; const i=blanks.indexOf(after); return R.find(b=>blanks.indexOf(b)>i)||R[0]||null; }
+function scrollToSlot(s){ s.scrollIntoView({block:'center',inline:'center',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'}); }
+function setActive(s){
+  if(active) active.classList.remove('active');
+  active=s&&!s.dataset.done?s:null; activeCands=null;
+  const candsEl=document.getElementById('cands'); candsEl.innerHTML='';
+  if(active){
+    active.classList.add('active'); scrollToSlot(active);
+    const right=active.dataset.ans;
+    const left=[...tilesEl.children].map(x=>x.dataset.ans).filter(a=>a!==right);
+    const sameReg=blanks.filter(b=>b.dataset.r===active.dataset.r).map(b=>b.dataset.ans).filter(a=>a!==right);
+    const pool=[...new Set(shuffle(left).concat(shuffle(sameReg)))];
+    let wrong=pool.slice(0,5);
+    if(wrong.length<5){ const extra=shuffle([...new Set(blanks.map(b=>b.dataset.ans))]).filter(a=>a!==right&&!wrong.includes(a)); wrong=wrong.concat(extra.slice(0,5-wrong.length)); }
+    shuffle([right,...wrong]).forEach(a=>{ const c=document.createElement('button'); c.type='button'; c.className='cand'; c.textContent=a;
+      c.onclick=()=>{ if(!active) return;
+        if(a===active.dataset.ans){ const tile=[...tilesEl.children].find(x=>x.dataset.ans===a); if(tile) place(tile,active); }
+        else { mistakes++; weak[active.dataset.k]=1; save(); c.classList.remove('no'); void c.offsetWidth; c.classList.add('no'); c.disabled=true; update(); } };
+      candsEl.appendChild(c); });
+  }
+  update();
+}
+function focusRegion(){ const f=blanks.find(inRegion); if(f&&region!=='all') scrollToSlot(f); }
 function place(tile,slot){
   if(tile.dataset.ans===slot.dataset.ans){
-    slot.classList.remove('hid','no'); slot.classList.add('ok'); slot.dataset.done=1; tile.remove(); selTile=null;
+    slot.classList.remove('hid','no','active'); slot.classList.add('ok'); slot.dataset.done=1; tile.remove(); selTile=null;
+    if(active===slot){ update(); setActive(nextEmpty(slot)); return; }
   } else {
     mistakes++; slot.classList.remove('no'); void slot.offsetWidth; slot.classList.add('no'); setTimeout(()=>slot.classList.remove('no'),700);
     weak[slot.dataset.k]=1; save(); tile.classList.remove('sel'); selTile=null;
@@ -405,6 +469,7 @@ function setMode(m){
   document.getElementById('hintline').textContent = m==='flip'
     ? '點虛線框翻開答案；翻開後再點一次標成「不熟」（紅框，會記在這支手機）。手機建議橫放，或用＋放大後左右滑動。'
     : '把下方字卡拖到圖上對應的框；放錯會彈回並記成不熟。範圍選小一點比較好拖，例如先練「單一迭代內的工作」。';
+  requestAnimationFrame(fitVP);
   if(m==='drag') startDrag(); else { blanks.forEach(b=>{ b.classList.remove('slot','ok','no','over'); delete b.dataset.done; }); reapplyWeak(); hideWhere(()=>true); }
 }
 document.getElementById('hideAll').onclick=()=>hideWhere(()=>true);
@@ -419,20 +484,29 @@ document.getElementById('nextBtn').onclick=()=>{const b=order.find(x=>inRegion(x
 
 /* zoom */
 const vp=document.getElementById('vp'),sizer=document.getElementById('sizer');
-const ZKEY='pm-chart-zoom';let z=null;try{z=parseFloat(localStorage.getItem(ZKEY));}catch(e){}
+const ZKEY='pm-chart-zoom2';let z=null;try{z=parseFloat(localStorage.getItem(ZKEY));}catch(e){}
 const fit=()=>Math.min(1,(vp.clientWidth)/1800);
 function applyZoom(v){z=Math.max(.25,Math.min(1.6,v));cv.style.transform=`scale(${z})`;sizer.style.width=1800*z+'px';sizer.style.height=1130*z+'px';try{localStorage.setItem(ZKEY,z);}catch(e){}}
 document.getElementById('zIn').onclick=()=>applyZoom(z*1.25);
 document.getElementById('zOut').onclick=()=>applyZoom(z/1.25);
 document.getElementById('zFit').onclick=()=>applyZoom(fit());
-applyZoom(z&&!isNaN(z)?z:Math.max(fit(),.62));
+applyZoom(z&&!isNaN(z)?z:(innerWidth<700||innerHeight<500?.8:Math.max(fit(),.62)));
+/* two-finger pinch zoom inside the chart, anchored at the fingers */
+let pinch=null;
+const tdist=(a,b)=>Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);
+vp.addEventListener('touchstart',e=>{ if(e.touches.length===2){ const [a,b]=e.touches; pinch={d:tdist(a,b),z}; } },{passive:true});
+vp.addEventListener('touchmove',e=>{ if(!pinch||e.touches.length!==2) return; e.preventDefault();
+  const [a,b]=e.touches, r=vp.getBoundingClientRect(), mx=(a.clientX+b.clientX)/2-r.left, my=(a.clientY+b.clientY)/2-r.top;
+  const px=(vp.scrollLeft+mx)/z, py=(vp.scrollTop+my)/z; applyZoom(pinch.z*tdist(a,b)/pinch.d); vp.scrollLeft=px*z-mx; vp.scrollTop=py*z-my; },{passive:false});
+vp.addEventListener('touchend',e=>{ if(e.touches.length<2) pinch=null; },{passive:true});
 const regSel=document.getElementById('region');
 Object.entries(REG).forEach(([k,v])=>{ const o=document.createElement('option'); o.value=k; o.textContent=v+'（'+blanks.filter(b=>k==='all'||b.dataset.r===k).length+'）'; regSel.appendChild(o); });
 regSel.value=region;
-regSel.onchange=()=>{ region=regSel.value; saveUI(); if(mode==='drag') startDrag(); else { reapplyWeak(); blanks.forEach(b=>b.classList.remove('hid')); hideWhere(()=>true); } };
+regSel.onchange=()=>{ region=regSel.value; saveUI(); if(mode==='drag') startDrag(); else { reapplyWeak(); blanks.forEach(b=>b.classList.remove('hid')); hideWhere(()=>true); focusRegion(); } };
 document.getElementById('mFlip').onclick=()=>setMode('flip');
 document.getElementById('mDrag').onclick=()=>setMode('drag');
 document.getElementById('restart').onclick=startDrag;
+document.getElementById('dragNext').onclick=()=>setActive(nextEmpty(active));
 setMode(UI.mode==='drag'?'drag':'flip');
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}
 </script>
