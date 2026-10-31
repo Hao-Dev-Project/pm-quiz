@@ -1,6 +1,6 @@
 // 版本號：更新題庫或網頁後改這個數字，手機上的舊快取就會換掉
-const VERSION = 'pm-quiz-v6';
-const SHELL = ['./', 'index.html', 'chart.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png'];
+const VERSION = 'pm-quiz-v7-no-drag';
+const SHELL = ['./', 'index.html', 'chart.html', 'chart-practice.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(VERSION).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
@@ -14,7 +14,7 @@ self.addEventListener('fetch', e => {
   const url = new URL(req.url);
   // 網頁本身：有網路就抓最新版，沒網路用快取
   if (req.mode === 'navigate' || (url.origin === location.origin && url.pathname.endsWith('.html'))) {
-    e.respondWith(fetch(req).then(res => { const copy = res.clone(); caches.open(VERSION).then(c => c.put(req, copy)); return res; })
+    e.respondWith(fetch(req, { cache: 'no-store' }).then(res => { const copy = res.clone(); caches.open(VERSION).then(c => c.put(req, copy)); return res; })
       .catch(async () => (await caches.match(req, { ignoreSearch: true })) || caches.match(url.pathname.endsWith('chart.html') ? 'chart.html' : 'index.html')));
     return;
   }
