@@ -1,0 +1,369 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>APMA Ch3｜32 格架構圖模擬考</title><style>
+/* Layout: a faithful redraw of the printed NPMA chart on a fixed 1800×1130 canvas (scaled to fit, zoomable),
+   every label replaced by a tap-to-reveal blank in the same spot. Deliberately single (paper) theme, like the handout. */
+:root{
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:light;
+  --desk:#d9dde2; --paper:#ffffff; --ink:#1d2430; --muted:#5d6672; --accent:#2340b8;
+  --blue:#2b5ea8; --blue-hi:#5d8fd6; --orange:#e2803a; --orange-soft:#f9d8b2; --peach:#fbe7d0;
+  --red:#9c2f2f; --pink:#f3cbc6; --green:#8cc06a; --green-soft:#e6f2da;
+  --bad:#d4344d;
+  --f-serif:"Noto Serif TC","Songti TC",serif;
+  --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--desk);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.5;
+  padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px));padding-block:10px 40px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--desk)}
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:8px;position:sticky;top:env(safe-area-inset-top,0px);z-index:6;background:var(--desk);padding-block:8px}
+.top a{color:var(--muted);font-size:13px;margin-right:4px}
+.top button{font:inherit;font-size:13px;border:1px solid #b9c0c8;background:#fff;color:var(--ink);border-radius:999px;padding:5px 12px;cursor:pointer}
+.top button.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.top button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.top .count{font-size:13px;color:var(--muted);margin-left:auto}
+.top .count b{color:var(--ink)} .top .count .w{color:var(--bad)}
+.zoom{display:inline-flex;gap:4px}
+.zoom button{padding:5px 10px}
+.hintline{font-size:12px;color:var(--muted);margin:0 0 8px}
+.viewport{overflow:auto;border-radius:6px;box-shadow:0 1px 0 #c3c9d0,0 6px 24px rgba(30,40,60,.12);background:var(--paper);max-height:calc(100vh - 110px);-webkit-overflow-scrolling:touch}
+.sizer{position:relative}
+.canvas{position:absolute;left:0;top:0;width:1800px;height:1130px;transform-origin:0 0;background:var(--paper)}
+.canvas svg{position:absolute;inset:0;width:1800px;height:1130px}
+.fixed{position:absolute;font-family:var(--f-serif);font-weight:700;color:var(--ink);white-space:nowrap;pointer-events:none}
+
+/* blanks */
+.b{position:absolute;font:inherit;font-family:var(--f-body);font-size:15px;line-height:20px;color:var(--ink);padding:1px 3px;margin:0;
+  border:1px solid transparent;border-radius:3px;background:transparent;cursor:pointer;text-align:left;white-space:pre;-webkit-tap-highlight-color:transparent}
+.b.c{text-align:center}
+.b.serif{font-family:var(--f-serif);font-weight:700}
+.b.light{color:#fff}
+.b.hid{background:rgba(255,255,255,.9);border:1px dashed #7d8794}
+.b.light.hid{background:rgba(255,255,255,.22);border-color:rgba(255,255,255,.8)}
+.b.hid .a{visibility:hidden}
+.b .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#8a93a0;font-size:12px;letter-spacing:.12em;pointer-events:none}
+.b.light .ph{color:rgba(255,255,255,.9)}
+.b:not(.hid) .ph{display:none}
+.b.weak{border:2px solid var(--bad)!important;background:rgba(255,226,231,.92)}
+.b.weak.light{background:rgba(212,52,77,.35)}
+.b.weak.hid{border-style:dashed!important}
+.b.flash{outline:3px solid var(--accent);outline-offset:2px}
+.b:focus-visible,.top button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.credit{font-size:12px;color:var(--muted);margin-top:8px}
+.grp,.seg{display:inline-flex;flex-wrap:wrap;gap:6px}
+.seg{gap:0}.seg button:first-child{border-radius:999px 0 0 999px}.seg button:last-child{border-radius:0 999px 999px 0;margin-left:-1px}
+.reg select{font:inherit;font-size:13px;border:1px solid #b9c0c8;border-radius:999px;padding:5px 10px;background:#fff;color:var(--ink)}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+/* drag mode */
+body.drag{padding-bottom:calc(32vh + 20px)}
+body.drag .viewport{max-height:max(200px,calc(100vh - 32vh - 120px))}
+body.drag .b:not(.slot){pointer-events:none}
+.pool{position:fixed;left:0;right:0;bottom:0;z-index:8;background:#f4f6f8;border-top:1px solid #b9c0c8;box-shadow:0 -6px 20px rgba(30,40,60,.12);
+  max-height:32vh;overflow:auto;padding:8px max(12px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}
+.pool-head{font-size:13px;color:var(--muted);margin-bottom:6px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pool-head b{color:var(--ink)} .pool-head .w{color:var(--bad)}
+.pool-head button{font:inherit;font-size:13px;border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:999px;padding:4px 12px;cursor:pointer}
+.tiles{display:flex;flex-direction:column;gap:8px}
+.tgroup{display:flex;flex-direction:column;gap:4px;padding:6px 8px;border:1px solid #d3d8de;border-radius:8px;background:#fff}
+.tg-name{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.04em}
+.tg-tiles{display:flex;flex-wrap:wrap;gap:6px}
+.tile{font:inherit;font-size:14px;background:#fff;color:var(--ink);border:1px solid #8f98a3;border-radius:6px;padding:5px 10px;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.tile.sel{background:var(--accent);color:#fff;border-color:var(--accent)}
+.tile.dragging{opacity:.3}
+.ghost{position:fixed;z-index:30;pointer-events:none;transform:translate(-50%,-70%);box-shadow:0 8px 18px rgba(0,0,0,.25);cursor:grabbing}
+.b.slot.hid{border:1.5px dashed var(--accent);background:rgba(232,238,255,.94)}
+.b.light.slot.hid{background:rgba(232,238,255,.35);border-color:#fff}
+.b.slot.over{outline:3px solid var(--accent);outline-offset:1px}
+.b.ok{border:2px solid #17845a!important;background:rgba(223,243,234,.95)}
+.b.light.ok{background:rgba(23,132,90,.5)}
+.b.no{border:2px solid var(--bad)!important;animation:shake .35s}
+.top{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+.top::-webkit-scrollbar{display:none}
+.top>*{flex:none}
+.top .count{padding-left:8px}
+.viewport{touch-action:pan-x pan-y}
+.cands{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.cand{font:inherit;font-size:15px;min-height:44px;background:#fff;border:1px solid #8f98a3;border-radius:8px;padding:8px 12px;text-align:left;color:var(--ink);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.cand:active{background:#e8eeff}
+.cand.no{border-color:var(--bad);background:#ffe5ea;color:var(--bad);animation:shake .35s}
+.b.slot.active{outline:3px solid #f2a900;outline-offset:2px;background:rgba(255,240,190,.97)!important;border-color:#c98a00!important}
+.b.light.slot.active{background:rgba(255,226,140,.6)!important}
+.pool-head .link{background:none;border:0;color:var(--accent);text-decoration:underline;padding:0;font-size:13px;cursor:pointer}
+.pool-head .q{font-weight:700;color:var(--ink);font-size:14px}
+@media (max-width:700px),(max-height:500px){
+  .hintline,.credit{display:none}
+  body{padding-block:2px 12px;padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px))}
+  .top{padding-block:6px}
+  .top button,.reg select{padding:6px 10px}
+  .viewport{max-height:calc(100vh - 64px)}
+  .pool{max-height:42vh}
+  body.drag{padding-bottom:calc(42vh + 12px)}
+  body.drag .viewport{max-height:max(150px,calc(100vh - 42vh - 62px))}
+  .cands{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+
+:root{--f-body:system-ui,"Microsoft JhengHei",sans-serif;--f-serif:var(--f-body)}
+body{padding:0;background:#f2f5f8}.apphead{background:#fff;padding:20px 24px;border-bottom:1px solid #dce3ea}.apphead h1{font-size:23px;margin:0 0 6px}.apphead p{margin:0;color:#52616b;font-size:14px}.tools{display:flex;gap:8px;flex-wrap:wrap;padding:12px 24px;background:#fff;align-items:center}.tools button,.tools select{font:inherit;border:1px solid #b9c8d2;border-radius:8px;background:white;padding:8px 12px;cursor:pointer}.tools .main{background:#176e88;color:white;border-color:#176e88}.layout{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:16px;padding:16px}.mapbox{min-width:0}.viewport{max-height:calc(100vh - 190px);height:calc(100vh - 190px);border:1px solid #d4dfe6;border-radius:12px}.canvas{font-size:14px}.b{pointer-events:none;cursor:default}.b.exam{pointer-events:auto;background:#fff!important;color:#d4382e!important;border:1.5px solid #e34535!important;font-size:15px!important;font-weight:bold;text-align:center;padding:0;min-width:38px}.b.exam.active{background:#fff2bb!important;outline:3px solid #e1a900;outline-offset:2px}.b.exam.correct{border-color:#218455!important;color:#218455!important}.b.exam.wrong{border-color:#cb3636!important;background:#fff0ed!important}.fixed{font-family:var(--f-body)}.sheet{background:#fff;border:1px solid #d4dfe6;border-radius:12px;padding:16px;max-height:calc(100vh - 190px);overflow:auto}.sheet h2{font-size:18px;margin:0 0 8px}.sheet p{font-size:13px;color:#52616b}.card{border:1px solid #d7e1e8;border-radius:8px;margin:8px 0;padding:10px}.card label{display:flex;gap:10px;align-items:center;font-weight:650}.card input{min-width:0;width:100%;font:inherit;border:0;border-bottom:1px solid #aebcc7;outline-offset:4px;padding:5px}.card.good{background:#edf8f1;border-color:#66a67d}.card.bad{background:#fff1ee;border-color:#e49b90}.feedback{font-size:13px;margin-top:6px;color:#52616b}.status{font-weight:650;margin-left:auto}.help{font-size:12px;color:#63727e;padding:8px 2px}.mini{font-size:12px;color:#52616b}.notice{padding:8px 24px;background:#edf6fa;font-size:13px}.navnums{display:flex;flex-wrap:wrap;gap:5px}.navnums button{border:1px solid #d3dfe5;background:#f7fafc;border-radius:5px;width:30px;height:30px;cursor:pointer}.navnums button.done{background:#d9edf3}.navnums button.err{background:#ffe0da}.navnums button.pass{background:#ddf1e3}
+@media(max-width:900px){.layout{display:block;padding:10px}.apphead{padding:14px}.apphead h1{font-size:20px}.tools{padding:10px;gap:6px}.viewport{height:47vh;max-height:none}.sheet{max-height:none;margin-top:12px;padding:12px}.card{padding:12px}.card input{font-size:16px;min-height:35px}.status{width:100%;margin:0}.tools button{padding:7px 9px}.notice{padding:8px 12px}.apphead p{font-size:12px}}
+@media print{.apphead,.tools,.notice,.sheet,.help{display:none}.layout{display:block;padding:0}.viewport{overflow:visible;height:auto;max-height:none;box-shadow:none;border:0}.canvas{transform:scale(.58)!important}.sizer{width:1044px!important;height:655px!important}@page{size:A4 landscape;margin:8mm}}
+
+.mobile-nav{display:none}
+@media(max-width:900px){
+html{height:100%;overflow:hidden}body{height:var(--app-height,100dvh);height:var(--app-height,100svh);overflow:hidden;display:flex;flex-direction:column;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);overscroll-behavior:none}
+.apphead{padding:8px 12px;flex:none}.apphead h1{font-size:17px;line-height:24px;margin:0}.apphead a{font-size:11px}.apphead p,.notice{display:none}
+.tools{flex:none;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding:7px 10px;gap:6px;border-bottom:1px solid #dce3ea}.tools>*{flex:none}.tools button,.tools select{font-size:13px;min-height:42px;padding:8px 10px}.tools .status{width:auto;font-size:12px;order:-1;margin:0 4px 0 0}.tools #reset{margin-right:8px}
+.layout{display:flex;flex:1;min-height:0;flex-direction:column;padding:8px;gap:8px;overflow:hidden}.mapbox{flex:1;min-height:110px;display:flex;flex-direction:column}.viewport{flex:1;height:auto;max-height:none;min-height:0;overflow:auto;overscroll-behavior:contain;touch-action:pan-x pan-y;border-radius:9px}.help{font-size:11px;padding:4px 0 0;flex:none}
+.sheet{flex:none;max-height:45%;margin:0;padding:10px 12px;border-radius:10px;overflow:auto;scrollbar-width:thin}.sheet h2{display:none}.sheet>p,.sheet>.mini{display:none}.card{display:none;margin:5px 0 0;padding:8px 10px}.card.current{display:block}.card label>span{font-size:20px;color:#176e88;min-width:28px}.card input{font-size:18px;min-height:44px;padding:5px 4px;background:transparent}.feedback{margin-top:5px;font-size:13px}
+.mobile-nav{display:flex;gap:8px;align-items:center}.mobile-nav button{font:inherit;font-size:13px;border:1px solid #bdcfd9;background:#f5fafc;color:#18334a;border-radius:7px;min-height:42px;padding:7px 10px}.mobile-nav button:disabled{opacity:.4}.mobile-nav strong{flex:1;text-align:center;font-size:14px}.navnums{display:none;padding-top:8px;gap:5px}.sheet.numbers-open .navnums{display:flex}.navnums button{width:38px;height:38px;font-size:14px}.navnums button.current{outline:2px solid #176e88;outline-offset:1px}
+}
+@media(max-width:900px) and (max-height:500px){.apphead{display:none}.help{display:none}.sheet{max-height:50%;padding:6px 10px}.mobile-nav button{min-height:34px;padding:4px 8px}.card{padding:3px 8px}.card input{min-height:36px}}
+@media print{.mobile-nav{display:none}}
+
+.mobile-actions{display:none}
+@media(max-width:900px){
+html{height:auto;overflow:visible}body{display:block;height:auto;min-height:100svh;overflow:visible;padding-bottom:calc(76px + env(safe-area-inset-bottom));overscroll-behavior:auto}
+.apphead{display:block;padding:10px 12px}.apphead h1{font-size:18px}.apphead p{display:block;font-size:12px;margin-top:5px}.tools{display:flex;overflow:auto;flex-wrap:nowrap}.tools #grade,.tools #reveal,.tools #retry,.tools .status{display:none}.notice{display:block;padding:8px 12px;font-size:12px}
+.layout{display:block;overflow:visible;padding:8px}.mapbox{position:sticky;top:0;z-index:5;display:block;min-height:0;padding:6px 0;background:#f2f5f8}.viewport{display:block;height:clamp(140px,35svh,300px);height:clamp(130px,calc(var(--app-height,100svh) * .38),300px);max-height:none;min-height:0}.help{display:block;background:#f2f5f8;font-size:11px}
+.sheet{display:block;margin-top:8px;padding:12px;max-height:none;overflow:visible}.sheet h2{display:block;font-size:17px;margin-bottom:5px}.sheet>p{display:block;font-size:12px}.sheet>.mini{display:block;margin-top:12px}.mobile-nav,.navnums,.sheet.numbers-open .navnums{display:none}.card,.card.current{display:block;padding:12px;margin:10px 0;scroll-margin-top:calc(clamp(130px,38svh,300px) + 50px)}.card.current{border-color:#176e88;box-shadow:0 0 0 1px #176e88}.card label>span{font-size:17px;min-width:48px}.card input{font-size:18px;min-height:44px}.feedback{font-size:14px}
+.mobile-actions{position:fixed;z-index:10;bottom:0;left:0;right:0;display:flex;gap:8px;padding:9px 12px calc(9px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid #cfdae1;box-shadow:0 -3px 14px #18334a12}.mobile-actions button{font:inherit;border:1px solid #bdcdd5;min-height:46px;border-radius:9px;background:#fff;color:#18334a;padding:8px 12px}.mobile-actions .primary{flex:1;background:#176e88;color:#fff;border-color:#176e88}.mobile-actions button:active{filter:brightness(.9)}
+}
+@media print{.mobile-actions{display:none}}
+</style></head><body><header class="apphead"><h1>APMA Ch3｜架構圖模擬考</h1><a href="./">回題庫</a> · <a href="chart-practice.html">原版 95 格練習</a><p>依考試截圖的 1–32 號位置練習 · 上面看圖，下面依序填答，填完交卷</p></header><div class="tools"><button id="fit">整張圖</button><button id="minus" aria-label="縮小">－</button><button id="plus" aria-label="放大">＋</button><select id="scope" aria-label="練習範圍"><option value="all">全部 32 格</option><option value="1,4">圖表標籤 1–4</option><option value="5,9">階段 5–9</option><option value="10,17">角色 10–17</option><option value="18,26">工作事項 18–26</option><option value="27,32">起始產出 27–32</option></select><button class="main" id="grade">交卷批改</button><button id="reveal">顯示答案</button><button id="retry">重練錯題</button><button id="reset">清空作答</button><span class="status" role="status" id="status"></span></div><div class="notice">每格 3 分，全部共 96 分。8 號在圖上重複出現，答案相同。作答自動保存在此瀏覽器。</div><main class="layout"><section class="mapbox"><div class="viewport" id="vp"><div class="sizer" id="sizer"><div class="canvas" id="cv"><svg id="art" viewBox="60 300 1800 1130" aria-hidden="true"></svg></div></div></div><div class="help">點圖上編號 → 找到答題欄；點答題欄 → 放大對應位置。按「整張圖」回到全圖。</div></section><aside class="sheet"><h2>填空答題卡</h2><div class="mobile-nav"><button id="prevQ" aria-label="上一格">← 上一格</button><strong id="currentQ" aria-live="polite">第 1 格</strong><button id="nextQ" aria-label="下一格">下一格 →</button><button id="toggleNums" aria-expanded="false">跳題</button></div><div class="navnums" id="nav"></div><p id="sheetInfo">先回想再填寫，交卷後顯示錯題與正解。</p><div id="cards"></div><div class="mini">11 號依原圖為「贊助者」，不採用截圖中被判錯的「投資者」。可接受「台／臺」「用戶／使用者」及合理標點差異；其餘以完整名稱比對。此模擬考不保證與老師判分規則完全相同。</div></aside></main><div class="mobile-actions"><button id="mobileAnswers">看答案</button><button id="mobileWrong">練錯題</button><button class="primary" id="mobileGrade">交卷批改</button></div><script>
+/* ---------- coordinates: same system as the original photo (x 60–1860, y 300–1430) ---------- */
+const OX=60, OY=300;
+const C={blue:'#2b5ea8',blueHi:'#6f9be0',orange:'#e2803a',orangeHi:'#f2a865',peach:'#fbe3c8',peachLine:'#eeb27c',
+  red:'#9c2f2f',redHi:'#c0504d',pink:'#f5d0cb',pinkLine:'#d98c86',band:'#f6c9cf',green:'#8cc06a',greenSoft:'#e3f0d6',
+  ink:'#1d2430',grey:'#9aa3ae',po:'#2f9a4a',coach:'#7b4fc4',member:'#b8432f',tester:'#2f6fc4',sponsor:'#c99a1c',stake:'#e8bb2c'};
+let svg='';
+const add=s=>svg+=s;
+const chevron=(x1,y1,x2,y2,fill,notch=22)=>{const m=(y1+y2)/2;add(`<polygon points="${x1},${y1} ${x2-notch},${y1} ${x2},${m} ${x2-notch},${y2} ${x1},${y2} ${x1+notch},${m}" fill="${fill}"/>`);};
+const ghostChev=(x,y1,y2,fill)=>{const m=(y1+y2)/2;add(`<polygon points="${x},${y1} ${x+14},${y1} ${x+30},${m} ${x+14},${y2} ${x},${y2} ${x+16},${m}" fill="${fill}" opacity=".55"/>`);};
+const rect=(x,y,w,h,fill,stroke='none',r=14,sw=2)=>add(`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>`);
+const arrow=(pts,color=C.red,w=3)=>{const d='M'+pts.map(p=>p.join(' ')).join(' L');add(`<path d="${d}" fill="none" stroke="${color}" stroke-width="${w}" marker-end="url(#ah-${color.slice(1)})"/>`);};
+const person=(x,y,col,s=1,prop='')=>{
+  add(`<g transform="translate(${x} ${y}) scale(${s})"><ellipse cx="0" cy="22" rx="17" ry="14" fill="${col}"/><circle cx="0" cy="0" r="11" fill="${col}"/><circle cx="-3" cy="-4" r="4" fill="#fff" opacity=".45"/>`);
+  if(prop==='wrench') add(`<rect x="10" y="4" width="16" height="5" rx="2" fill="#8d96a3" transform="rotate(-35 10 4)"/>`);
+  if(prop==='watch') add(`<circle cx="13" cy="20" r="8" fill="#fff" stroke="#6b7480" stroke-width="2"/><path d="M13 15 V20 H17" stroke="#6b7480" stroke-width="1.6" fill="none"/>`);
+  if(prop==='money') add(`<circle cx="-12" cy="24" r="9" fill="#c9a227" stroke="#8a6d10"/><text x="-12" y="28" font-size="11" text-anchor="middle" fill="#fff" font-weight="700">$</text>`);
+  if(prop==='band') add(`<rect x="-11" y="-6" width="22" height="4" fill="#e6e9ee"/>`);
+  add(`</g>`);};
+const crowd=(x,y,s=1)=>{person(x-10,y+4,C.stake,.7*s);person(x+12,y+4,C.stake,.7*s);person(x+1,y-4,C.stake,.8*s);add(`<path d="M${x+22} ${y+18} l6 -10 l3 3" stroke="${C.stake}" stroke-width="4" fill="none"/>`);};
+const team=(x,y,list,s=.8)=>{list.forEach((p,i)=>{const map={po:[C.po,''],coach:[C.coach,'watch'],member:[C.member,'wrench'],tester:[C.tester,'band'],sponsor:[C.sponsor,'money']};person(x+i*30,y+(i%2)*6,map[p][0],s,map[p][1]);});};
+const doc=(x,y,w,h)=>{rect(x,y,w,h,'#fff','#8f98a3',2,1.5);for(let i=1;i<6;i++)add(`<line x1="${x+8}" y1="${y+i*h/7}" x2="${x+w-8}" y2="${y+i*h/7}" stroke="#b8bfc8" stroke-width="2"/>`);};
+const cards=(x,y,n,w,h,fill,stroke='#8f98a3',dx=8,dy=-6)=>{for(let i=n-1;i>=0;i--)rect(x+i*dx,y+i*dy,w,h,fill,stroke,3,1.5);};
+const stackBar=(x,y,h)=>{rect(x,y,26,h,'#3d6fb6','#24497f',2,1.5);for(let i=1;i<6;i++)add(`<line x1="${x}" y1="${y+i*h/6}" x2="${x+26}" y2="${y+i*h/6}" stroke="#fff" stroke-width="1.5"/>`);};
+const sticky=(x,y,c='#f4e36b')=>rect(x,y,22,18,c,'#c9b84a',1,1);
+const quad=(x,y)=>{rect(x-34,y-14,30,70,'#e8eef6','#8f98a3',3,1.5);[[0,0,'#f6c3c8'],[48,0,'#e3f0a8'],[0,40,'#e6cde9'],[48,40,'#cfe0f3']].forEach(([dx,dy,f])=>rect(x+dx,y+dy,44,36,f,'#9aa3ae',6,1));};
+
+add(`<defs>${['9c2f2f','e2803a','2b5ea8','5d6672'].map(c=>`<marker id="ah-${c}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#${c}"/></marker>`).join('')}
+<linearGradient id="gBlue" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4b7cc6"/><stop offset="1" stop-color="#244f93"/></linearGradient>
+<linearGradient id="gOr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f0a463"/><stop offset="1" stop-color="#e07a32"/></linearGradient>
+<linearGradient id="gRed" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b8443f"/><stop offset="1" stop-color="#8a2626"/></linearGradient>
+<linearGradient id="gRel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbe2c4"/><stop offset="1" stop-color="#f6c99a"/></linearGradient>
+<linearGradient id="gIt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7d9d5"/><stop offset="1" stop-color="#eba9a3"/></linearGradient></defs>`);
+
+/* header */
+add(`<g><circle cx="150" cy="322" r="11" fill="#c0392b"/><text x="167" y="331" font-size="26" font-weight="900" fill="#1f4e8c" font-family="Arial,sans-serif">NPMA</text></g>`);
+rect(668,318,826,62,'#2f5f9e','none',10);
+/* row labels box for 階段 */
+rect(118,482,118,34,'none','#555',2,1.2);
+
+/* ===== stage row ===== */
+ghostChev(232,452,548,C.blueHi);
+chevron(262,452,528,548,'url(#gBlue)',26);
+ghostChev(526,452,548,C.blueHi);ghostChev(548,452,548,C.blueHi);
+chevron(548,452,808,548,'url(#gBlue)',26);
+ghostChev(808,452,548,C.orangeHi);
+chevron(826,456,1515,555,'url(#gOr)',28);
+[[862,1018],[1030,1186],[1198,1354],[1366,1508]].forEach(([a,b])=>chevron(a,500,b,548,'#e46f22',16));
+ghostChev(1512,452,548,C.blueHi);
+chevron(1546,452,1800,548,'url(#gBlue)',26);
+/* people above stages */
+team(345,398,['po','sponsor','coach'],.85);crowd(498,402);
+team(615,392,['member','tester','coach','po'],.8);person(698,432,C.sponsor,.8,'money');crowd(785,402);
+team(1000,392,['member','tester','po','member'],.8);person(1100,428,C.sponsor,.8,'money');team(1130,398,['coach'],.8);crowd(1180,402);
+crowd(1675,390);team(1620,415,['po'],.8);person(1670,440,C.sponsor,.8,'money');team(1720,418,['member'],.8);
+
+/* 可行性分析 outputs */
+rect(290,698,52,82,'#a8262b','#6d1416',3);rect(330,690,52,82,'#c1393b','#6d1416',3);rect(296,712,40,22,'#e8c35c','none',2);
+add(`<g transform="rotate(-8 300 880)">`);rect(272,858,96,62,'#eef1f4','#8f98a3',3);for(let i=0;i<4;i++)for(let j=0;j<6;j++)rect(278+j*14,864+i*12,11,8,'#c9d1db','none',1);add(`</g>`);
+rect(282,900,46,40,'#d5dae0','#7d8794',4,1.5);
+
+/* 起始 outputs */
+doc(565,732,98,98);
+rect(552,868,62,58,'#fff','#8f98a3',2);rect(620,868,64,58,'#fff','#8f98a3',2);rect(640,874,30,22,'#c9b8a8','none',2);
+cards(556,978,4,110,58,'#fff');
+add(`<g>`);[[536,1104,'XS'],[566,1094,'S'],[600,1090,'M'],[634,1096,'L'],[662,1108,'XL']].forEach(([x,y,t],i)=>{add(`<g transform="rotate(${-20+i*10} ${x+22} ${y+30})">`);rect(x,y,44,58,'#fff','#2b5ea8',4,3);add(`<text x="${x+22}" y="${y+36}" font-size="15" text-anchor="middle" font-weight="900" fill="#2b5ea8" font-family="Arial">${t}</text></g>`);});add(`</g>`);
+rect(498,1212,136,82,'#f4f6fa','#8f98a3',3);[[504,1220,'#f6c3c8'],[540,1220,'#cfe0f3'],[576,1220,'#e3f0a8'],[504,1246,'#cfe0f3'],[540,1246,'#e6cde9'],[576,1246,'#f6c3c8'],[504,1270,'#e3f0a8'],[540,1270,'#cfe0f3']].forEach(([x,y,f])=>rect(x,y,30,18,f,'none',2));
+stackBar(652,1199,95);
+
+/* ===== release box ===== */
+add(`<rect x="1148" y="560" width="52" height="16" fill="${C.orange}"/><polygon points="1132,576 1216,576 1174,600" fill="${C.orange}"/>`);
+rect(722,604,870,350,'url(#gRel)','#e9a46b',22,2);
+ghostChev(724,650,712,C.orangeHi);
+chevron(742,650,902,712,'url(#gOr)',20);ghostChev(900,650,712,C.orangeHi);
+team(770,612,['po','member','tester','coach'],.75);
+person(952,612,C.member,.75,'wrench');
+add(`<circle cx="958" cy="668" r="18" fill="#fff" stroke="#5d6672" stroke-width="3"/><line x1="972" y1="680" x2="1008" y2="702" stroke="#5d6672" stroke-width="5"/>`);
+person(950,718,C.po,.8);
+rect(1040,756,62,42,'#e3edf9','#7d8794',3);rect(1062,760,44,36,'#fff','#7d8794',2);
+add(`<rect x="1018" y="640" width="400" height="84" fill="${C.band}" opacity=".9"/>`);
+[[1028,1128],[1135,1235],[1242,1322],[1316,1414]].forEach(([a,b])=>chevron(a,682,b,716,'#a63a42',14));
+ghostChev(1414,650,722,C.orangeHi);
+chevron(1430,650,1586,722,'url(#gOr)',20);
+team(1440,612,['po','member','tester','coach'],.75);
+[[760,902],[786,908],[812,900],[838,906]].forEach(([x,y])=>sticky(x,y));
+[0,1,2,3,4,5,6].forEach(i=>{add(`<g transform="rotate(${-40+i*12} 945 920)">`);rect(925,852,40,60,'#fff','#555',3,1.5);add(`</g>`);});
+add(`<g transform="rotate(10 955 880)">`);rect(940,852,40,58,'#fff','#222',3,2);add(`<text x="960" y="890" font-size="22" text-anchor="middle" font-weight="900">1</text></g>`);
+add(`<rect x="1058" y="826" width="26" height="12" fill="#f3a7a7"/>`);stackBar(1058,840,82);
+rect(1384,790,72,44,'#f0f2f5','#7d8794',3);person(1412,802,'#3a3f47',.65);rect(1380,830,80,16,'#6b4a33','none',2);
+rect(1466,790,88,54,'#f7f8f9','#7d8794',2);[[1472,796,'#7cc576'],[1490,796,'#f2e35a'],[1508,796,'#f2e35a'],[1528,796,'#e85b52'],[1472,818,'#f2e35a'],[1490,818,'#f2e35a'],[1528,818,'#f2e35a']].forEach(([x,y,f])=>rect(x,y,14,16,f,'none',1));
+quad(1452,880);
+add(`<path d="M1562 920 H1582 V728" fill="none" stroke="${C.red}" stroke-width="6" marker-end="url(#ah-9c2f2f)"/>`);
+/* 結束 pictures */
+rect(1640,660,124,96,'#f3f5f8','#c3c9d0',4,1);[[1660,716],[1690,706],[1730,716]].forEach(([x,y])=>person(x,y,'#3a3f47',.8));add(`<polyline points="1665,688 1690,678 1712,686 1745,664" fill="none" stroke="#c0392b" stroke-width="3"/>`);
+rect(1650,768,128,104,'#ece6f5','none',40);person(1690,804,'#2c3e66',.9);person(1740,796,'#2c3e66',.9);[[1665,780,'#f2c94c'],[1760,776,'#eb5757'],[1700,852,'#6fcf97'],[1750,848,'#bb6bd9']].forEach(([x,y,f])=>add(`<circle cx="${x}" cy="${y}" r="5" fill="${f}"/>`));
+
+/* ===== big arrow to iteration ===== */
+add(`<rect x="1162" y="730" width="44" height="210" fill="${C.red}"/><polygon points="1130,936 1238,936 1184,982" fill="${C.red}"/>`);
+
+/* ===== iteration box ===== */
+rect(712,988,1124,410,'url(#gIt)','#e09a94',22,2);
+const rb=(x,y,w,h)=>rect(x,y,w,h,'url(#gRed)','#6d1c1c',8,1.5);
+rb(745,1140,200,56);rb(966,1140,166,56);rb(1186,1024,222,88);rb(1186,1132,222,90);rb(1186,1268,222,58);rb(1430,1140,176,56);rb(1626,1140,182,56);
+team(765,1072,['po','member','tester','coach'],.8);
+team(985,1072,['po','member','tester','coach'],.8);
+team(1450,1072,['po','member','tester','coach'],.8);
+team(1645,1072,['po','member','tester','coach'],.8);
+person(1214,986,C.coach,.75,'watch');person(1345,988,C.po,.9);
+person(1322,1108,C.tester,.7,'band');add(`<circle cx="1352" cy="1118" r="9" fill="#fff" stroke="#c0392b" stroke-width="2"/><line x1="1346" y1="1112" x2="1358" y2="1124" stroke="#c0392b" stroke-width="2"/>`);
+rect(1250,1110,58,18,'#f3f1ec','#b9b2a6',2,1);
+person(1318,1246,C.member,.8,'wrench');
+rect(1330,1296,86,46,'#f7eeb6','#c9b84a',2,1);add(`<text x="1373" y="1312" font-size="10" text-anchor="middle" font-family="monospace" fill="#333">010010100010</text><text x="1373" y="1324" font-size="10" text-anchor="middle" font-family="monospace" fill="#333">100011101010</text><text x="1373" y="1336" font-size="10" text-anchor="middle" font-family="monospace" fill="#333">101010000100</text>`);
+arrow([[724,1168],[742,1168]]);arrow([[945,1168],[963,1168]]);
+arrow([[1132,1160],[1183,1070]]);arrow([[1132,1168],[1183,1172]]);arrow([[1132,1178],[1183,1296]]);
+arrow([[1408,1070],[1428,1150]]);arrow([[1408,1172],[1428,1168]]);arrow([[1408,1296],[1428,1186]]);
+arrow([[1606,1168],[1623,1168]]);arrow([[1808,1168],[1830,1168]]);
+/* iteration outputs */
+rect(752,1228,104,58,'#fff','#8f98a3',2);for(let i=1;i<5;i++)add(`<line x1="760" y1="${1228+i*11}" x2="848" y2="${1228+i*11}" stroke="#c3c9d0" stroke-width="2"/>`);
+arrow([[804,1288],[754,1306]],'#5d6672',2);arrow([[804,1288],[806,1306]],'#5d6672',2);arrow([[804,1288],[860,1306]],'#5d6672',2);
+[[730,'#9b59b6'],[784,'#43a047'],[838,'#3d7fc4']].forEach(([x,f])=>{rect(x,1310,44,36,f,'none',3);rect(x+4,1306,40,8,'#e9edf2','none',2);});
+sticky(900,1208,'#f4e88a');
+add(`<g>`);for(let i=0;i<5;i++)rect(918,1306+i*6,36,4,'#555','none',1);add(`</g>`);
+rect(986,1210,130,64,'#f4f8fb','#8f98a3',2);for(let i=0;i<5;i++)add(`<line x1="${986+i*26}" y1="1210" x2="${986+i*26}" y2="1274" stroke="#b8c0c9"/>`);[[992,1224],[1018,1238],[1044,1222],[1070,1244],[996,1250],[1094,1228]].forEach(([x,y])=>rect(x,y,16,12,'#4f9fd6','none',1));
+rect(986,1306,130,80,'#fff','#8f98a3',2);add(`<polyline points="996,1318 1020,1330 1046,1340 1070,1356 1100,1374" fill="none" stroke="#555" stroke-width="2"/><polyline points="996,1316 1100,1376" fill="none" stroke="#bbb" stroke-dasharray="4 3"/>`);
+quad(1702,1254);
+add(`<path d="M1798 1256 Q1820 1236 1824 1210" fill="none" stroke="${C.red}" stroke-width="6" marker-end="url(#ah-9c2f2f)"/>`);
+
+/* ===== roles box ===== */
+add(`<circle cx="138" cy="1110" r="26" fill="#fff" stroke="#222" stroke-width="2"/><path d="M138 1084 a13 13 0 0 1 0 26 a13 13 0 0 0 0 26 a26 26 0 0 1 0 -52" fill="#222"/><circle cx="138" cy="1097" r="4" fill="#fff"/><circle cx="138" cy="1123" r="4" fill="#222"/>`);
+rect(88,1140,410,182,C.greenSoft,'#7aa95a',0,2);
+add(`<rect x="88" y="1140" width="410" height="26" fill="${C.green}"/><line x1="162" y1="1140" x2="162" y2="1322" stroke="#7aa95a" stroke-width="2"/>`);
+rect(346,1204,150,116,'#f2f8ec','#7aa95a',0,2);
+crowd(122,1176);person(122,1268,C.sponsor,.85,'money');
+person(206,1258,C.po,.9);person(286,1258,C.coach,.9,'watch');person(392,1258,C.member,.9,'wrench');person(456,1258,C.tester,.9,'band');
+
+document.getElementById('art').innerHTML=svg;
+
+/* ---------- blanks: [text, x, y(center of first line), anchor, style] ---------- */
+const B=[
+ // stages
+ ['可行性分析',395,500,'c','serif light big'],['起始',678,500,'c','serif light big'],['發布循環',1170,478,'c','serif big2'],
+ ['發布1',940,525,'c','serif light'],['發布2',1108,525,'c','serif light'],['……',1276,525,'c','serif light'],['發布n',1437,525,'c','serif light'],
+ ['結束',1673,500,'c','serif light big'],
+ // 可行性分析
+ ['• 建立專案願景',282,570],['• 準備營運企劃案',282,602],
+ ['產品盒',336,800,'c'],['營運企劃案',318,955,'c'],
+ // 起始
+ ['• 發展專案章程',540,571],['• 辨識角色',540,603],['• 建立產品待辦清單',540,635],['• 進行高階估算',540,667],['• 建立產品地圖\n  （用戶故事地圖）',540,699],
+ ['專案章程',614,846,'c'],['角色卡',618,944,'c'],['產品待辦清單',612,1062,'c'],['高階估算',612,1190,'c'],
+ ['產品地圖\n（用戶故事地圖）',566,1314,'c'],['產品\n待辦清單',668,1314,'c'],
+ ['發布1',698,1214,'c','sm'],['發布2',698,1246,'c','sm'],['發布3',698,1278,'c','sm'],
+ // 單一發布內的工作
+ ['單一發布內的工作',1330,580,'c','serif big2'],
+ ['發布規劃',822,681,'c','serif light'],['刺探',958,668,'c','sm'],
+ ['迭代循環',1218,656,'c','serif'],
+ ['迭代1',1080,699,'c','serif light sm'],['迭代2',1186,699,'c','serif light sm'],['……',1282,699,'c','serif light sm'],['迭代n',1366,699,'c','serif light sm'],
+ ['發布與\n回顧',1505,676,'c','serif light'],
+ ['• 分解用戶故事',732,742],['• 定義驗收標準／\n  定義什麼是完成',732,774],['• 估算用戶故事點數\n  （玩撲克牌）',732,826],['• 建立發布待辦清單',732,878],
+ ['蒐集下一迭代\n用戶故事細節資料',922,780],
+ ['分解為小的用戶故事',806,938,'c'],['撲克牌點數',948,938,'c'],['發布待辦\n清單',1022,832,'c','sm'],
+ ['發布1',1106,846,'c','sm'],['發布2',1106,876,'c','sm'],['發布3',1106,906,'c','sm'],['產品待辦清單',1070,940,'c'],
+ ['• 發布增量產品／成果',1420,742],['• 進行發布回顧會議',1420,772],
+ ['增量產品／成果',1414,862,'c'],['停車場圖',1512,862,'c'],
+ ['開始做',1474,898,'c','xs'],['停止做',1522,898,'c','xs'],['多做些',1474,938,'c','xs'],['少做些',1522,938,'c','xs'],['回\n饋',1562,900,'c','sm'],
+ ['發布結束後，如果不是最\n終發布，就進行下一個發\n布規劃；如果是最終發布，\n則直接進入結束流程。',1612,894,'','redtxt'],
+ // 結束
+ ['• 專案產品／成果',1622,578],['• 專案回顧會議',1622,608],['• 結束專案活動',1622,638],
+ // 單一迭代內的工作
+ ['單一迭代內的工作',1350,966,'c','serif big2'],
+ ['迭代規劃（細部規劃）',845,1168,'c','light'],['每日站立會議',1049,1168,'c','light'],
+ ['• 準備回答問題',1194,1041,'','light sm'],['• 確認用戶故事',1194,1068,'','light sm'],['• 蒐集下一迭代用戶故事細節',1194,1095,'','light sm'],
+ ['除錯',1432,1108,'c'],
+ ['• 執行驗收測試',1194,1150,'','light sm'],['• 準備測試案例',1194,1177,'','light sm'],['• 測試新增的已完成增量產品',1194,1204,'','light sm'],
+ ['• 完成增量產品',1200,1297,'','light'],
+ ['• 持續更新專案報告',1440,1168,'','light'],['• 進行迭代審查與回顧\n  會議',1634,1158,'','light'],
+ ['用戶故事',790,1216,'c'],['測試案例',912,1244,'c','sm'],['迭代1\n待辦清單',935,1272,'c','sm'],['發布1\n待辦清單',936,1356,'c','sm'],
+ ['工作\n1',752,1362,'c','sm'],['工作\n2',806,1362,'c','sm'],['工作\n3',860,1362,'c','sm'],
+ ['用戶故事看板',1050,1290,'c'],['燃盡圖',1084,1322,'c','sm'],
+ ['開始做',1724,1272,'c','xs'],['停止做',1772,1272,'c','xs'],['多做些',1724,1312,'c','xs'],['少做些',1772,1312,'c','xs'],['回\n饋',1818,1270,'c','sm'],
+ // 角色
+ ['利害\n關係人',124,1222,'c','sm'],['贊助者',124,1308,'c','sm'],['敏捷團隊',300,1186,'c','serif'],['開發團隊',420,1222,'c','serif'],
+ ['產品負責人',206,1308,'c','sm'],['敏捷教練',286,1308,'c','sm'],['團隊成員',392,1308,'c','sm'],['測試者',456,1308,'c','sm'],
+];
+const FIXED=[
+ ['中華專案管理學會',258,322,20],['National Project Management Association',140,350,15],
+ ['敏 捷 專 案 管 理 架 構 圖',1080,350,32,'#fff','c'],
+ ['參與人員',178,438,17,'','c'],['階　　段',178,500,17,'','c'],['工作事項',178,590,17,'','c'],['產　　出',178,726,17,'','c'],
+];
+
+const answers=['參與人員','階段','工作事項','產出','可行性分析','起始','發布循環','發布','結束','利害關係人','贊助者','敏捷團隊','產品負責人','敏捷教練','開發團隊','團隊成員','測試者','建立專案願景','準備營運企劃案','產品盒','營運企劃案','發展專案章程','辨識角色','建立產品待辦清單','進行高階估算','建立產品地圖（用戶故事地圖）','專案章程','角色卡','產品待辦清單','高階估算','產品地圖（用戶故事地圖）','產品待辦清單'];
+const cv=document.getElementById('cv'),vp=document.getElementById('vp');
+const sizes={big:22,big2:20,sm:13,xs:11.5};let current=1;const isMobile=()=>matchMedia('(max-width:900px)').matches;let z=1,graded=false,show=false,onlyWrong=false,lastWrong=[];
+let state={};try{state=JSON.parse(localStorage.getItem('pm-exam32-v1')||'{}')}catch{};
+const original=[...B];
+function numberOf(t,x,y){
+ if(y<=530){if(t==='……')return;if(t==='可行性分析')return 5;if(t==='起始')return 6;if(t==='發布循環')return 7;if(t==='結束')return 9;return 8;}
+ const role={'利害\n關係人':10,'贊助者':11,'敏捷團隊':12,'產品負責人':13,'敏捷教練':14,'開發團隊':15,'團隊成員':16,'測試者':17};if(x<500&&y>1150)return role[t];
+ if(x<500)return ({'• 建立專案願景':18,'• 準備營運企劃案':19,'產品盒':20,'營運企劃案':21})[t];
+ if(x<720){if(y<730)return ({'• 發展專案章程':22,'• 辨識角色':23,'• 建立產品待辦清單':24,'• 進行高階估算':25,'• 建立產品地圖\n  （用戶故事地圖）':26})[t];
+ return ({'專案章程':27,'角色卡':28,'產品待辦清單':29,'高階估算':30,'產品地圖\n（用戶故事地圖）':31,'產品\n待辦清單':32})[t];}
+}
+function addLabel(t,x,y,fs,anc='',n=null,cls=''){
+ const b=document.createElement('button');b.type='button';b.className='b '+cls;b.style.fontSize=fs+'px';b.style.lineHeight=Math.round(fs*1.35)+'px';b.textContent=t;if(anc==='c')b.classList.add('c');cv.append(b);
+ const w=b.offsetWidth,h=b.offsetHeight;b.style.left=(x-OX-(anc==='c'?w/2:0))+'px';b.style.top=(y-OY-Math.round(fs*1.35)/2-2)+'px';b.style.width=w+'px';b.style.height=h+'px';
+ if(n){b.dataset.n=n;b.className='b exam';b.textContent=n;b.setAttribute('aria-label',`第 ${n} 格`);b.onclick=()=>focusInput(n);b.style.height=Math.max(h,24)+'px';}
+ return b;
+}
+FIXED.forEach(([t,x,y,fs,col,anc])=>{const n=({'參與人員':1,'階　　段':2,'工作事項':3,'產　　出':4})[t];const el=addLabel(t,x,y,fs,anc,n);if(col)el.style.color=col;});
+B.forEach(([t,x,y,anc='',sty=''])=>{const fs=Object.entries(sizes).find(([k])=>sty.split(' ').includes(k))?.[1]||15;const n=numberOf(t,x,y);if(t==='單一發布內的工作'){addLabel('單一',1210,y,20,'c');addLabel('發布',1260,y,20,'c',8);addLabel('內的工作',1355,y,20,'c');return;}addLabel(t,x,y,fs,anc,n,sty.includes('light')?'light':'');});
+const norm=s=>s.normalize('NFKC').replace(/使用者/g,'用戶').replace(/台/g,'臺').replace(/[\s•·、，,。／/（）()：:－-]/g,'');
+function correct(n){const v=norm(state[n]||'');return [answers[n-1],...([26,31].includes(n)?['建立產品地圖','建立用戶故事地圖'].filter(()=>n===26).concat(n===31?['產品地圖','用戶故事地圖']:[]):[])].some(a=>norm(a)===v);}
+function visible(n){const s=document.getElementById('scope').value;let ok=s==='all'||(n>=+s.split(',')[0]&&n<=+s.split(',')[1]);return ok&&(!onlyWrong||lastWrong.includes(n));}
+function persist(){try{localStorage.setItem('pm-exam32-v1',JSON.stringify(state))}catch{}}
+function centerQuestion(n){if(!isMobile())return;const b=[...document.querySelectorAll('.exam')].find(b=>+b.dataset.n===n);if(!b)return;vp.scrollLeft=(parseFloat(b.style.left)+b.offsetWidth/2)*z-vp.clientWidth/2;vp.scrollTop=(parseFloat(b.style.top)+b.offsetHeight/2)*z-vp.clientHeight/2;}
+function mobileUI(){const ns=answers.map((_,i)=>i+1).filter(visible);if(!ns.includes(current))current=ns[0]||1;document.querySelectorAll('.card').forEach(c=>c.classList.toggle('current',c.querySelector('input')?.id==='a'+current));document.getElementById('currentQ').textContent=`第 ${current} 格 · ${Math.max(0,ns.indexOf(current)+1)} / ${ns.length}`;document.getElementById('prevQ').disabled=ns.indexOf(current)<=0;document.getElementById('nextQ').disabled=ns.indexOf(current)>=ns.length-1;document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('current',+b.textContent===current));}
+function focusInput(n){const input=document.getElementById('a'+n);if(!input||!visible(n))return;current=n;mobileUI();if(isMobile()){document.querySelector('.sheet').classList.remove('numbers-open');document.getElementById('toggleNums').setAttribute('aria-expanded','false');if(z<.65)zoom(.8);centerQuestion(n);}input.closest('.card').scrollIntoView({block:isMobile()?'start':'nearest',behavior:'smooth'});input.focus({preventScroll:true});highlight(n);}
+function highlight(n){document.querySelectorAll('.exam').forEach(b=>b.classList.toggle('active',+b.dataset.n===n));}
+function render(){let count=0,filled=0,right=0;const cards=document.getElementById('cards');cards.replaceChildren();document.getElementById('nav').replaceChildren();
+ for(let n=1;n<=32;n++){if(!visible(n))continue;count++;if((state[n]||'').trim())filled++;if(correct(n))right++;
+ const card=document.createElement('div');card.className='card'+(graded?(correct(n)?' good':' bad'):'');const label=document.createElement('label');label.htmlFor='a'+n;const num=document.createElement('span');num.textContent='第 '+n+' 格';const input=document.createElement('input');input.id='a'+n;input.value=state[n]||'';input.autocomplete='off';input.setAttribute('aria-label',`第 ${n} 格答案`);input.enterKeyHint='next';input.spellcheck=false;input.onfocus=()=>{current=n;mobileUI();highlight(n);if(isMobile()&&z<.65)zoom(.8);centerQuestion(n);if(isMobile())input.closest('.card').scrollIntoView({block:'start',behavior:'smooth'});};input.oninput=()=>{state[n]=input.value;graded=false;show=false;persist();document.querySelectorAll('.card').forEach(c=>{c.classList.remove('good');c.classList.remove('bad');c.querySelector('.feedback')?.remove();});document.querySelectorAll('.exam').forEach(b=>{b.classList.remove('correct');b.classList.remove('wrong');});updateStatus();};input.onkeydown=e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();stepQuestion(1);}};label.append(num,input);card.append(label);if(graded||show){const feedback=document.createElement('div');feedback.className='feedback';feedback.textContent=(graded?(correct(n)?'✓ 正確':'✗ 正確答案：'):'答案：')+((!graded||!correct(n))?answers[n-1]:'');card.append(feedback);}cards.append(card);
+ const b=document.createElement('button');b.textContent=n;b.className=graded?(correct(n)?'pass':'err'):(state[n]?'done':'');b.onclick=()=>focusInput(n);document.getElementById('nav').append(b);
+ }
+ document.querySelectorAll('.exam').forEach(b=>{const n=+b.dataset.n;b.classList.toggle('correct',graded&&visible(n)&&correct(n));b.classList.toggle('wrong',graded&&visible(n)&&!correct(n));});updateStatus();mobileUI();
+ document.getElementById('sheetInfo').textContent=onlyWrong?'僅顯示上次答錯或未填的編號。':show?'已展開答案；先遮住答案回想，再核對。':'先回想再填寫，交卷後顯示錯題與正解。';
+}
+function updateStatus(){const mg=document.getElementById('mobileGrade');if(mg&&!graded)mg.textContent='交卷批改';const ns=answers.map((_,i)=>i+1).filter(visible);const filled=ns.filter(n=>(state[n]||'').trim()).length;document.getElementById('status').textContent=graded?`${ns.filter(correct).length} / ${ns.length} 格正確 · ${ns.filter(correct).length*3} / ${ns.length*3} 分`:`已填 ${filled} / ${ns.length} 格`;}
+function zoom(v){z=Math.max(.22,Math.min(2,v));cv.style.transform=`scale(${z})`;document.getElementById('sizer').style.cssText=`width:${1800*z}px;height:${1130*z}px`;}
+document.getElementById('fit').onclick=()=>zoom(vp.clientWidth/1800);function centeredZoom(v){const px=(vp.scrollLeft+vp.clientWidth/2)/z,py=(vp.scrollTop+vp.clientHeight/2)/z;zoom(v);vp.scrollLeft=px*z-vp.clientWidth/2;vp.scrollTop=py*z-vp.clientHeight/2;}document.getElementById('plus').onclick=()=>centeredZoom(z*1.25);document.getElementById('minus').onclick=()=>centeredZoom(z/1.25);
+document.getElementById('grade').onclick=()=>{graded=true;show=false;lastWrong=answers.map((_,i)=>i+1).filter(n=>visible(n)&&!correct(n));render();};document.getElementById('reveal').onclick=()=>{show=!show;render();};document.getElementById('retry').onclick=()=>{if(!lastWrong.length){document.getElementById('status').textContent='請先交卷；若全對，可清空後再練。';return;}onlyWrong=true;lastWrong.forEach(n=>delete state[n]);graded=false;show=false;persist();render();};document.getElementById('reset').onclick=()=>{if(!confirm('清空目前所有 32 格作答？'))return;state={};onlyWrong=false;lastWrong=[];graded=false;show=false;persist();render();};document.getElementById('scope').onchange=()=>{onlyWrong=false;graded=false;show=false;render();if(isMobile())centerQuestion(current);};
+function stepQuestion(delta){const ns=answers.map((_,i)=>i+1).filter(visible);const n=ns[ns.indexOf(current)+delta];if(n)focusInput(n);}
+document.getElementById('prevQ').onclick=()=>stepQuestion(-1);document.getElementById('nextQ').onclick=()=>stepQuestion(1);document.getElementById('toggleNums').onclick=()=>{const open=document.querySelector('.sheet').classList.toggle('numbers-open');document.getElementById('toggleNums').setAttribute('aria-expanded',String(open));};
+function viewportSize(){document.documentElement.style.setProperty('--app-height',(window.visualViewport?.height||window.innerHeight)+'px');}viewportSize();window.visualViewport?.addEventListener('resize',viewportSize);window.addEventListener('resize',viewportSize);
+document.getElementById('mobileGrade').onclick=()=>{document.getElementById('grade').click();const ns=answers.map((_,i)=>i+1).filter(visible);const n=ns.find(n=>!correct(n))||ns[0];if(n){current=n;mobileUI();document.getElementById('a'+n).closest('.card').scrollIntoView({block:'start',behavior:'smooth'});}document.getElementById('mobileGrade').textContent=document.getElementById('status').textContent;};
+document.getElementById('mobileAnswers').onclick=()=>{document.getElementById('reveal').click();document.getElementById('mobileAnswers').textContent=show?'收起答案':'看答案';};document.getElementById('mobileWrong').onclick=()=>document.getElementById('retry').click();
+let pinch;vp.addEventListener('touchstart',e=>{if(e.touches.length===2)pinch={sx:vp.scrollLeft,sy:vp.scrollTop,d:Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY),z};},{passive:true});vp.addEventListener('touchmove',e=>{if(e.touches.length!==2||!pinch)return;e.preventDefault();const r=vp.getBoundingClientRect(),mx=(e.touches[0].clientX+e.touches[1].clientX)/2-r.left,my=(e.touches[0].clientY+e.touches[1].clientY)/2-r.top,px=(vp.scrollLeft+mx)/z,py=(vp.scrollTop+my)/z;zoom(pinch.z*Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY)/pinch.d);vp.scrollLeft=px*z-mx;vp.scrollTop=py*z-my;},{passive:false});vp.addEventListener('touchend',()=>pinch=null);render();zoom(vp.clientWidth/1800);if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+</script></body></html>
