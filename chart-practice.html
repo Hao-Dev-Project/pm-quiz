@@ -126,7 +126,7 @@ body.drag .b:not(.slot){pointer-events:none}
 <body>
 <div class="top" role="toolbar" aria-label="默寫工具">
   <a href="./">← 題庫</a>
-  <span class="seg"><button id="mFlip" aria-pressed="true">翻牌</button><button id="mDrag" aria-pressed="false">拖拉字卡</button></span>
+  <span class="seg"><button id="mFlip" aria-pressed="true">翻牌</button></span>
   <label class="reg"><span class="vh">練習範圍</span><select id="region"></select></label>
   <span id="flipTools" class="grp">
   <button class="primary" id="nextBtn">翻下一格</button>
@@ -489,9 +489,8 @@ function bindTile(tile){
   tile.addEventListener('pointerup',end); tile.addEventListener('pointercancel',e=>{ if(ghost){ghost.remove();ghost=null;} tile.classList.remove('dragging'); clearOver(); start=null; dragging=false; });
 }
 function setMode(m){
-  mode=m; saveUI();
+  m='flip';mode=m; saveUI();
   document.getElementById('mFlip').setAttribute('aria-pressed',String(m==='flip'));
-  document.getElementById('mDrag').setAttribute('aria-pressed',String(m==='drag'));
   document.getElementById('flipTools').hidden=m!=='flip'; document.getElementById('dragTools').hidden=m!=='drag';
   document.getElementById('pool').hidden=m!=='drag'; document.body.classList.toggle('drag',m==='drag');
   document.getElementById('hintline').textContent = m==='flip'
@@ -536,10 +535,9 @@ regSel.append(og1,og2);
 regSel.value=region;
 regSel.onchange=()=>{ region=regSel.value; saveUI(); if(mode==='drag') startDrag(); else { reapplyWeak(); blanks.forEach(b=>b.classList.remove('hid')); hideWhere(()=>true); focusRegion(); } };
 document.getElementById('mFlip').onclick=()=>setMode('flip');
-document.getElementById('mDrag').onclick=()=>setMode('drag');
 document.getElementById('restart').onclick=startDrag;
 document.getElementById('dragNext').onclick=()=>setActive(nextEmpty(active));
-setMode(UI.mode==='drag'?'drag':'flip');
+setMode('flip');
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}
 </script>
 </body>
