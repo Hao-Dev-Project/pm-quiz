@@ -1,4 +1,4 @@
-const VERSION='pm-quiz-pwa-v12';
+const VERSION='pm-quiz-pwa-v13';
 const PREFIX='pm-quiz-';
 const SHELL=['./','index.html','chart.html','chart-practice.html','pwa.js','pwa.css','manifest.webmanifest','icon-192.png','icon-512.png','icon-maskable-512.png','apple-touch-icon.png'];
 const root=new URL('./',self.location.href);
