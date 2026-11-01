@@ -3,6 +3,7 @@
   let promptEvent=null, registration=null, waitingWorker=null, updating=false, offlineReady=false;
   const standalone=()=>window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
   const ios=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  document.documentElement.classList.toggle('pwa-ios-standalone',ios&&standalone());
   const install=document.getElementById('installBtn')||Object.assign(document.createElement('button'),{id:'installBtn',type:'button',textContent:'安裝到手機'});
   install.classList.add('pwa-install');install.hidden=standalone();install.textContent='安裝到手機';
   const host=document.querySelector('header')||document.querySelector('[role="toolbar"]')||document.body;
