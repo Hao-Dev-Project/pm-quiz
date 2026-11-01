@@ -3,6 +3,33 @@
   let promptEvent=null, registration=null, waitingWorker=null, updating=false, offlineReady=false;
   const standalone=()=>window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
   const ios=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+
+  // Cancel iOS smart zoom on controls without intercepting scrolling or pinching.
+  if(ios){
+    let tap=null;
+    const controlAt=target=>target?.closest?.('button,a[href],summary')||null;
+    document.addEventListener('touchstart',e=>{
+      const node=controlAt(e.target);
+      tap=e.touches.length===1&&node?{node,x:e.touches[0].clientX,y:e.touches[0].clientY,time:Date.now(),moved:false}:null;
+    },{passive:true});
+    document.addEventListener('touchmove',e=>{
+      if(!tap)return;
+      if(e.touches.length!==1){tap=null;return}
+      if(Math.abs(e.touches[0].clientX-tap.x)>10||Math.abs(e.touches[0].clientY-tap.y)>10)tap.moved=true;
+    },{passive:true});
+    document.addEventListener('touchcancel',()=>{tap=null},{passive:true});
+    document.addEventListener('touchend',e=>{
+      const g=tap;tap=null;
+      if(!g||g.moved||e.touches.length||Date.now()-g.time>600||!g.node.isConnected)return;
+      const p=e.changedTouches[0],r=g.node.getBoundingClientRect();
+      if(!p||p.clientX<r.left||p.clientX>r.right||p.clientY<r.top||p.clientY>r.bottom)return;
+      e.preventDefault();
+      if(g.node.matches(':disabled')||g.node.getAttribute('aria-disabled')==='true')return;
+      g.node.focus({preventScroll:true});g.node.click();
+    },{passive:false});
+    document.addEventListener('dblclick',e=>{if(controlAt(e.target))e.preventDefault()},{passive:false});
+  }
+
   document.documentElement.classList.toggle('pwa-ios-standalone',ios&&standalone());
   const install=document.getElementById('installBtn')||Object.assign(document.createElement('button'),{id:'installBtn',type:'button',textContent:'安裝到手機'});
   install.classList.add('pwa-install');install.hidden=standalone();install.textContent='安裝到手機';
