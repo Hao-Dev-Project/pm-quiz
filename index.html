@@ -274,7 +274,7 @@ function pool(){
 
 function renderHome(){
   $('subtitle').textContent='Ch1–Ch3 章節練習、講義習題與 AI 模擬題。';
-  segment($('chSeg'),[['all','全部'],['ch1','Ch1'],['ch2','Ch2'],['ch3','Ch3']],()=>st.ch,v=>{st.ch=v;st.topics.clear();if(!BANK.some(inBank))st.source='all';});
+  segment($('chSeg'),[['all','全部'],['ch1','Ch1'],['ch2','Ch2'],['ch3','Ch3']],()=>st.ch,v=>{st.ch=v;st.topics.clear();document.querySelector('.topic-options').open=v!=='all';if(!BANK.some(inBank))st.source='all';});
   segment($('sourceSeg'),[['all','全部來源'],['original','原有題庫'],['lecture','講義習題'],['ai','AI 模擬']],()=>st.source,v=>{st.source=v;st.topics.clear();});
   Array.from($('sourceSeg').children).forEach((b,i)=>{const key=['all','original','lecture','ai'][i];b.disabled=!BANK.some(q=>(st.ch==='all'||chapterOf(q)===st.ch)&&(key==='all'||sourceOf(q)===key));});
   saveSettings();
@@ -417,6 +417,7 @@ document.addEventListener('keydown',e=>{
   else if(e.key==='Enter' && run.answered){ e.preventDefault(); next(); }
 });
 renderHome();
+document.querySelector('.topic-options').open=st.ch!=='all';
 </script>
 
 
