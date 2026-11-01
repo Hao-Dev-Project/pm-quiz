@@ -7,9 +7,9 @@
   const install=document.getElementById('installBtn')||Object.assign(document.createElement('button'),{id:'installBtn',type:'button',textContent:'安裝到手機'});
   install.classList.add('pwa-install');install.hidden=standalone();install.textContent='安裝到手機';
   const host=document.querySelector('header')||document.querySelector('[role="toolbar"]')||document.body;
-  if(!install.isConnected)host.append(install);
-  const checkUpdates=document.createElement('button');checkUpdates.type='button';checkUpdates.id='pwa-check-updates';checkUpdates.className='pwa-install pwa-check-updates';checkUpdates.textContent='更新 App';host.append(checkUpdates);
-  const status=document.createElement('span');status.className='pwa-status';status.setAttribute('role','status');status.setAttribute('aria-live','polite');host.append(status);
+  let actions=document.querySelector('[data-pwa-actions]');if(!actions){actions=document.createElement('div');actions.className='pwa-actions';host.append(actions)}actions.append(install);
+  const checkUpdates=document.createElement('button');checkUpdates.type='button';checkUpdates.id='pwa-check-updates';checkUpdates.className='pwa-install pwa-check-updates';checkUpdates.textContent='更新 App';actions.append(checkUpdates);
+  const status=document.createElement('span');status.className='pwa-status';status.setAttribute('role','status');status.setAttribute('aria-live','polite');(document.querySelector('[data-pwa-status]')||host).append(status);
   const dialog=document.createElement('dialog');dialog.className='pwa-dialog';dialog.setAttribute('aria-labelledby','pwa-install-title');
   dialog.innerHTML='<h2 id="pwa-install-title">安裝專案管理題庫</h2><p id="pwa-install-copy"></p><ol id="pwa-install-steps"></ol><p class="pwa-install-note">安裝後從主畫面開啟，即可以獨立視窗練習。看到「可離線使用」後，答題、架構圖填空與翻牌都能離線開啟。作答紀錄保存在目前裝置與瀏覽環境。</p><button type="button" class="pwa-action" id="pwa-close">知道了</button>';
   document.body.append(dialog);dialog.querySelector('#pwa-close').onclick=()=>dialog.close();
@@ -55,4 +55,5 @@
   async function register(){try{registration=await navigator.serviceWorker.register('sw.js',{updateViaCache:'none'});offerUpdate(registration.waiting);askStatus(registration.active);const watch=worker=>{if(!worker)return;const changed=()=>{if(worker.state==='installed'){if(navigator.serviceWorker.controller)offerUpdate(worker);else askStatus(registration.active)}};worker.addEventListener('statechange',changed);changed()};watch(registration.installing);registration.addEventListener('updatefound',()=>watch(registration.installing));navigator.serviceWorker.ready.then(r=>askStatus(r.active));registration.update().catch(()=>{})}catch{status.textContent='離線內容尚未就緒，請連線後重試'}}
   if(document.readyState==='complete')register();else window.addEventListener('load',register,{once:true});
 })();
+
 
