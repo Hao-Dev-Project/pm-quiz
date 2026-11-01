@@ -1,22 +1,28 @@
 # 專案管理題庫
 
-專案管理 Ch1–Ch2 的測驗網站，包含小考題庫 110 題和 Ch2 記憶加練 66 題。
+涵蓋 Ch1–Ch3 的專案管理練習網站，提供選擇題測驗與敏捷架構圖填空。
 
-- 每個人的作答紀錄只存在自己的瀏覽器（localStorage），不會上傳，也不會互相看到。
-- 可以安裝到手機主畫面，打開過一次之後沒有網路也能作答。
+[開始測驗](https://hao-dev-project.github.io/pm-quiz/) · [架構圖填空](https://hao-dev-project.github.io/pm-quiz/chart.html)
 
-## 放上 GitHub Pages
+## 題庫內容
 
-1. 到 GitHub 建立一個新的 **Public** 儲存庫，例如 `pm-quiz`。
-2. 在儲存庫頁面按 **Add file → Upload files**，把這個資料夾裡的所有檔案拖進去，按 **Commit changes**。
-3. 到 **Settings → Pages**，Source 選 **Deploy from a branch**，Branch 選 **main**、資料夾選 **/ (root)**，按 **Save**。
-4. 等一兩分鐘，網址會是 `https://你的帳號.github.io/pm-quiz/`。
+| 題庫 | 題數 |
+| --- | ---: |
+| Ch1–Ch2 原有題庫 | 110 |
+| Ch2 AI 模擬試題 | 66 |
+| Ch3 AI 模擬試題與講義習題 | 65 |
 
-## 安裝到手機
+共 241 題。模擬題依講義編製，供複習使用，非實際考題。
 
-- iPhone：用 Safari 打開網址 → 分享 → 加入主畫面。
-- Android：用 Chrome 打開網址，點網頁上的「安裝到主畫面」，或從選單選「安裝應用程式」。
+## 功能
 
-## 更新題目
+- 依章節、主題與作答狀態篩選，支援隨機出題、即時解析及錯題重練。
+- 架構圖可直接填答、核對正解，或切換完整答案。
+- 作答紀錄儲存於目前瀏覽器（localStorage），不會上傳。
+- 支援加入手機主畫面，已快取頁面可離線使用。
 
-替換 `index.html` 後，有網路時打開網站就會拿到新版。也可以把 `sw.js` 第一行的版本號改掉（例如 `pm-quiz-v2`），讓手機清掉舊的快取。
+## 維護
+
+以靜態 HTML、CSS 與 JavaScript 建置，透過 GitHub Pages 部署（`main` 分支根目錄）。
+
+更新題庫請編輯 `index.html`；更新架構圖請編輯 `chart.html`。需要更新離線快取時，調整 `sw.js` 的 `VERSION`。
