@@ -136,7 +136,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 @media(max-width:600px){body{padding-bottom:120px}.wrap{gap:16px}.start-row{position:fixed;bottom:0;left:0;right:0;z-index:30;background:var(--sheet);border-top:1px solid var(--rule);box-shadow:0 -4px 18px #0000000d;padding:10px 16px calc(10px + env(safe-area-inset-bottom));gap:8px}.start-row .btn{flex:1}.start-row .hint{flex:1;line-height:1.4}.quick-start{padding:16px}.quick-actions .btn{padding:10px 12px}.qbar{gap:8px}.qbar .btn{min-height:44px}header p{font-size:13px}.answer-details{padding:16px}.qcard .nav{position:sticky;bottom:0;background:var(--paper);padding:10px 0}.kbd{display:none}}
 </style>
 
-</head>
+<link rel="stylesheet" href="pwa.css"><script defer src="pwa.js"></script></head>
 <body>
 <div class="wrap" id="app">
   <header>
@@ -144,7 +144,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
       <h1>專案管理題庫</h1>
       <p id="subtitle"></p>
     </div>
-    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px"><div class="stats" id="hdrStats"></div><a class="btn ghost small" href="chart.html" style="text-decoration:none">架構圖默寫 →</a><button class="btn ghost small" id="installBtn" hidden>安裝到主畫面</button></div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px"><div class="stats" id="hdrStats"></div><a class="btn ghost small" href="chart.html" style="text-decoration:none">架構圖默寫 →</a><button class="btn ghost small" id="installBtn">安裝到手機</button></div>
   </header>
 
   <section id="home" class="home">
@@ -411,7 +411,7 @@ $('resetBtn').onclick=()=>{
   rec={}; save(); resetArmed=false; $('resetBtn').textContent='清除作答紀錄'; renderHome();
 };
 document.addEventListener('keydown',e=>{
-  if($('quiz').hidden || e.metaKey || e.ctrlKey || e.altKey) return;
+  if(document.querySelector('dialog[open]') || $('quiz').hidden || e.metaKey || e.ctrlKey || e.altKey) return;
   const k=e.key.toUpperCase();
   const idx = 'ABCD'.indexOf(k)>=0 ? 'ABCD'.indexOf(k) : '1234'.indexOf(k);
   if(idx>=0 && !run.answered && k.length===1){ e.preventDefault(); answer(idx); }
@@ -420,14 +420,9 @@ document.addEventListener('keydown',e=>{
 renderHome();
 </script>
 
-<script>
-if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{})); }
-let deferredPrompt=null;
-window.addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); deferredPrompt=e; document.getElementById('installBtn').hidden=false; });
-document.getElementById('installBtn').addEventListener('click',async()=>{ if(!deferredPrompt) return; deferredPrompt.prompt(); try{ await deferredPrompt.userChoice; }catch(e){} deferredPrompt=null; document.getElementById('installBtn').hidden=true; });
-window.addEventListener('appinstalled',()=>{ document.getElementById('installBtn').hidden=true; });
-</script>
+
 </body>
 </html>
+
 
 
