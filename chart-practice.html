@@ -122,7 +122,7 @@ body.drag .b:not(.slot){pointer-events:none}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 </style>
-</head>
+<link rel="stylesheet" href="pwa.css"><script defer src="pwa.js"></script></head>
 <body>
 <div class="top" role="toolbar" aria-label="默寫工具">
   <a href="./">← 題庫</a>
@@ -538,7 +538,8 @@ document.getElementById('mFlip').onclick=()=>setMode('flip');
 document.getElementById('restart').onclick=startDrag;
 document.getElementById('dragNext').onclick=()=>setActive(nextEmpty(active));
 setMode('flip');
-if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}
+
 </script>
 </body>
 </html>
+

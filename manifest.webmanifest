@@ -1,16 +1,52 @@
 {
   "name": "專案管理題庫",
   "short_name": "專案管理題庫",
-  "description": "專案管理 Ch1–Ch2 小考題庫與 Ch2 記憶加練",
+  "description": "專案管理 Ch1–Ch3 題庫、架構圖填空與翻牌練習，支援離線使用。",
   "lang": "zh-Hant-TW",
-  "start_url": "./",
+  "start_url": "./?source=pwa",
   "scope": "./",
   "display": "standalone",
   "background_color": "#eef1f4",
   "theme_color": "#2340b8",
   "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
-    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "id": "./",
+  "orientation": "any",
+  "categories": [
+    "education"
+  ],
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "開始答題",
+      "short_name": "答題",
+      "url": "./"
+    },
+    {
+      "name": "架構圖默寫",
+      "short_name": "架構圖",
+      "url": "./chart.html"
+    },
+    {
+      "name": "翻牌練習",
+      "short_name": "翻牌",
+      "url": "./chart-practice.html"
+    }
   ]
 }
