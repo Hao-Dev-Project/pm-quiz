@@ -23,6 +23,4 @@
 
 ## 維護
 
-以靜態 HTML、CSS 與 JavaScript 建置，透過 GitHub Pages 部署（`main` 分支根目錄）。
-
-更新題庫請編輯 `index.html`；更新架構圖請編輯 `chart.html`。需要更新離線快取時，調整 `sw.js` 的 `VERSION`。
+以靜態 HTML、CSS 與 JavaScript 建置，透過 GitHub Pages 部署（`main` 分支根目錄）
