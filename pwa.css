@@ -4,3 +4,6 @@
 .pwa-ios-standalone header{padding-top:36px;background:var(--sheet,#fff);flex-shrink:0;filter:none;-webkit-backdrop-filter:none;backdrop-filter:none}
 .pwa-ios-standalone [role="toolbar"]{padding-top:32px;background:var(--sheet,#fff)}
 @media(max-width:700px){.pwa-ios-standalone body>header{padding-top:32px}.pwa-ios-standalone #app>header{padding-top:24px}}
+
+
+.pwa-check-updates{margin:5px 8px 5px 0;white-space:nowrap}.pwa-check-updates:disabled{opacity:.6;cursor:wait}
