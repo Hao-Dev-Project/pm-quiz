@@ -1,7 +1,7 @@
 {
   "name": "專案管理題庫",
   "short_name": "專案管理題庫",
-  "description": "專案管理 Ch1–Ch3 題庫、架構圖填空與翻牌練習，支援離線使用。",
+  "description": "專案管理 Ch1–Ch3 題庫、架構圖填空，支援離線使用。",
   "lang": "zh-Hant-TW",
   "start_url": "./?source=pwa",
   "scope": "./",
@@ -42,11 +42,6 @@
       "name": "架構圖默寫",
       "short_name": "架構圖",
       "url": "./chart.html"
-    },
-    {
-      "name": "翻牌練習",
-      "short_name": "翻牌",
-      "url": "./chart-practice.html"
     }
   ]
 }
