@@ -2,7 +2,7 @@
 
 涵蓋 Ch1–Ch3 的專案管理練習網站，提供選擇題測驗與敏捷架構圖填空。
 
-[開始測驗](https://hao-dev-project.github.io/pm-quiz/) · [架構圖填空](https://hao-dev-project.github.io/pm-quiz/chart.html)
+[開始測驗](https://pmquiz.haoge.dev/) · [架構圖填空](https://pmquiz.haoge.dev/chart.html)
 
 ## 題庫內容
 
@@ -23,4 +23,4 @@
 
 ## 維護
 
-以靜態 HTML、CSS 與 JavaScript 建置，透過 GitHub Pages 部署（`main` 分支根目錄）
+以靜態 HTML、CSS 與 JavaScript 建置，透過 Vercel 部署（`main` 分支根目錄，自訂網域 `pmquiz.haoge.dev`）。
