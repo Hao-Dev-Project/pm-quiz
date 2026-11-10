@@ -59,7 +59,6 @@
   function askStatus(worker){if(!worker)return;const channel=new MessageChannel();channel.port1.onmessage=e=>{if(e.data?.type==='OFFLINE_READY'){offlineReady=true;paintStatus()}channel.port1.close()};worker.postMessage({type:'GET_STATUS'},[channel.port2]);setTimeout(()=>channel.port1.close(),5000)}
 
   function waitForInstall(worker){if(!worker||worker.state==='installed'||worker.state==='activated')return Promise.resolve();return new Promise((resolve,reject)=>{const finish=err=>{clearTimeout(timer);worker.removeEventListener('statechange',changed);err?reject(err):resolve()};const changed=()=>{if(worker.state==='installed'||worker.state==='activated')finish();else if(worker.state==='redundant')finish(new Error('安裝未完成'))};const timer=setTimeout(()=>finish(new Error('下載逾時，請稍後重試')),20000);worker.addEventListener('statechange',changed);changed()})}
-  function refreshShell(worker){return new Promise((resolve,reject)=>{const channel=new MessageChannel();const timer=setTimeout(()=>{channel.port1.close();reject(new Error('更新逾時，請重新開啟 App 後重試'))},20000);channel.port1.onmessage=e=>{clearTimeout(timer);channel.port1.close();e.data?.type==='SHELL_REFRESHED'?resolve():reject(new Error('下載未完成，請檢查網路後重試'))};worker.postMessage({type:'REFRESH_SHELL'},[channel.port2])})}
   checkUpdates.onclick=async()=>{
     if(!navigator.onLine){status.textContent='目前離線，請連線後再更新。';return}
     checkUpdates.disabled=true;checkUpdates.textContent='檢查更新中…';checkUpdates.setAttribute('aria-busy','true');
@@ -69,9 +68,10 @@
       await registration.update();await waitForInstall(registration.installing);
       const pending=registration.waiting||(waitingWorker?.state==='installed'?waitingWorker:null);
       if(pending){updating=true;waitingWorker=pending;checkUpdates.textContent='更新中…';pending.postMessage({type:'SKIP_WAITING'});return}
-      checkUpdates.textContent='下載最新版…';const active=registration.active||navigator.serviceWorker.controller;
-      if(!active)throw new Error('離線功能尚未準備完成，請稍後重試');
-      await refreshShell(active);location.reload();
+      // No new version: pages are already fetched fresh from the network, so skip the full re-download and reload.
+      if(!(registration.active||navigator.serviceWorker.controller))throw new Error('離線功能尚未準備完成，請稍後重試');
+      status.textContent='已是最新版本';checkUpdates.textContent='已是最新';checkUpdates.removeAttribute('aria-busy');
+      setTimeout(()=>{checkUpdates.disabled=false;checkUpdates.textContent='更新 App';paintStatus()},2500);
     }catch(err){status.textContent=err.message||'更新失敗，請稍後再試。';checkUpdates.disabled=false;checkUpdates.textContent='重試更新';checkUpdates.removeAttribute('aria-busy')}
   };
   let lastUpdateCheck=0;
