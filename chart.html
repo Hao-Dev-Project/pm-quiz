@@ -75,6 +75,7 @@ crowd(1675,390);team(1620,415,['po'],.8);person(1670,440,C.sponsor,.8,'money');t
 rect(290,698,52,82,'#a8262b','#6d1416',3);rect(330,690,52,82,'#c1393b','#6d1416',3);rect(296,712,40,22,'#e8c35c','none',2);
 add(`<g transform="rotate(-8 300 880)">`);rect(272,858,96,62,'#eef1f4','#8f98a3',3);for(let i=0;i<4;i++)for(let j=0;j<6;j++)rect(278+j*14,864+i*12,11,8,'#c9d1db','none',1);add(`</g>`);
 rect(282,900,46,40,'#d5dae0','#7d8794',4,1.5);
+doc(296,982,44,52);
 
 /* 起始 outputs */
 doc(565,732,98,98);
@@ -219,7 +220,7 @@ function feedback(f){const a=saved[f.key];const el=document.getElementById('feed
 function open(f){active=f.index;f.box.style.setProperty('--edit-width',Math.min(Math.max(f.w,180),Math.max(100,(vp.clientWidth-28)/z))+'px');const a=saved[f.key];document.getElementById('check').disabled=!!a?.checked;feedback(f)}
 function check(){if(answerView||active<0)return;const f=fields[active];if(saved[f.key]?.checked)return;saved[f.key]={typed:f.input.value,checked:true};paint(f);f.box.focus({preventScroll:true});persist();status();feedback(f);document.getElementById('check').disabled=true;}
 function focusAt(i){const f=fields[i];if(!f||answerView)return;if(saved[f.key]?.checked)f.box.focus({preventScroll:true});else f.input.focus({preventScroll:true});reveal(f)}
-const REGIONS={stages:{x:180,y:90,w:1560,h:170},feasibility:{x:180,y:90,w:285,h:620},start:{x:470,y:90,w:270,h:1010},release:{x:650,y:285,w:900,h:385},iteration:{x:650,y:680,w:1124,h:420},roles:{x:20,y:760,w:430,h:280},end:{x:1480,y:90,w:290,h:650}};let selectedRegion='all';
+const REGIONS={stages:{x:180,y:90,w:1560,h:170},feasibility:{x:180,y:90,w:285,h:690},start:{x:470,y:90,w:270,h:1010},release:{x:650,y:285,w:900,h:385},iteration:{x:650,y:680,w:1124,h:420},roles:{x:20,y:760,w:430,h:280},end:{x:1480,y:90,w:290,h:650}};let selectedRegion='all';
 function inRegion(f){const r=REGIONS[selectedRegion];return !r||(f.x+f.w/2>=r.x&&f.x+f.w/2<=r.x+r.w&&f.y+f.h/2>=r.y&&f.y+f.h/2<=r.y+r.h)}
 function next(){const scope=fields.filter(f=>inRegion(f)&&!saved[f.key]?.checked);const f=scope.find(f=>f.index>active)||scope[0];if(f)focusAt(f.index);else{document.getElementById('feedback').textContent='這個範圍已核對完成。可切換其他區域繼續練習。'}}
 
@@ -261,6 +262,8 @@ function create(t,x,y,fs,anchor='',fixedColor=''){
 FIXED.forEach(([t,x,y,fs,col,anc])=>{if(t.replace(/\s/g,'')==='敏捷專案管理架構圖')return;if(['參與人員','階　　段','工作事項','產　　出'].includes(t)){create(t,x,y,fs,anc);return;}const e=document.createElement('div');e.className='fixed';e.textContent=t;e.style.fontSize=fs+'px';e.style.color=col||'#1d2430';e.style.top=(y-OY-fs*.7)+'px';cv.append(e);e.style.left=(x-OX-(anc==='c'?e.offsetWidth/2:0))+'px'});
 B.forEach(([t,x,y,anc='',sty=''])=>{if(t==='……'){const e=document.createElement('span');e.className='fixed';e.textContent=t;e.style.cssText=`left:${x-OX-20}px;top:${y-OY-12}px;color:white;font-size:15px`;cv.append(e);return;}const fs=Object.entries(sizes).find(([k])=>sty.split(' ').includes(k))?.[1]||(sty==='redtxt'?13.5:15);create(t,x,y,fs,anc)});
 create('敏捷專案管理架構圖',1080,350,32,'c');
+// Added after the quiz revision; created last so existing saved answers keep their keys.
+create('• 核准專案',282,634,15);create('專案核准文件',318,1058,15,'c');
 document.getElementById('regionNav').onchange=e=>{selectedRegion=e.target.value;document.activeElement?.blur();active=-1;document.getElementById('check').disabled=true;const r=REGIONS[selectedRegion];if(r){vp.scrollLeft=r.x*z;vp.scrollTop=r.y*z}document.getElementById('feedback').className='feedback';document.getElementById('feedback').textContent=selectedRegion==='all'?'已切回全圖範圍。':`已移至${e.target.selectedOptions[0].textContent}，可滑動查看，或按「下一格」開始。`;saveView()};
 const VIEW_KEY='pm-chart-view-v1';let viewTimer;
 function saveView(){try{localStorage.setItem(VIEW_KEY,JSON.stringify({z,left:vp.scrollLeft,top:vp.scrollTop,region:selectedRegion}))}catch{}}
