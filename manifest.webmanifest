@@ -1,7 +1,7 @@
 {
   "name": "專案管理題庫",
   "short_name": "專案管理題庫",
-  "description": "專案管理 Ch1–Ch3 題庫、架構圖填空，支援離線使用。",
+  "description": "專案管理 Ch1–Ch3、Ch5 題庫、架構圖填空，支援離線使用。",
   "lang": "zh-Hant-TW",
   "start_url": "./?source=pwa",
   "scope": "./",
