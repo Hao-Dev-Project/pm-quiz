@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="專案管理 Ch1–Ch3、Ch5 題庫：章節練習與 AI 模擬試題，即時解析、錯題重練，作答紀錄只存在你的瀏覽器。">
-<meta name="theme-color" content="#141925">
+<meta name="theme-color" content="#f5efe3">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="專案管理題庫">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -18,16 +18,16 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
 <style>
 /* Layout: an exam answer sheet — a bubble grid of every question beside the setup, then one question card at a time.
-   Look: always dark, matching the "PM?" app icon — near-black navy, heavy sans type, one bright blue accent. */
+   Look: warm off-white paper with heavy sans type and one bright blue accent; the "PM?" mark keeps the icon's dark tile. */
 :root{
   padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
-  --paper:#141925; --sheet:#1b2231; --ink:#f3f5fa; --muted:#8f99ad; --rule:#2b3346;
-  --accent:#5b7cff; --accent-soft:#1f2a55; --on-accent:#0b1020;
-  --good:#4cd68f; --good-soft:#15342a; --bad:#ff6b81; --bad-soft:#3c1d27; --unseen:#1f2635;
+  --paper:#f5efe3; --sheet:#fffcf5; --ink:#171a22; --muted:#6c6a63; --rule:#e2d9c6;
+  --accent:#3555f0; --accent-soft:#e4e8fd; --on-accent:#ffffff;
+  --good:#1d8a57; --good-soft:#e1f3e8; --bad:#d23f5c; --bad-soft:#fbe4e8; --unseen:#f3ecdd;
   --f-display:"Inter","Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
   --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
   --f-mono:"Inter",system-ui,sans-serif;
-  color-scheme:dark;
+  color-scheme:light;
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
@@ -63,7 +63,7 @@ header p{margin:4px 0 0;color:var(--muted)}
 .start-row{display:flex;flex-wrap:wrap;align-items:center;gap:14px;padding-top:16px;border-top:1px dashed var(--rule)}
 .btn{font:inherit;font-weight:800;border:0;border-radius:10px;padding:11px 22px;cursor:pointer;background:var(--accent);color:var(--on-accent)}
 .btn:disabled{opacity:.4;cursor:not-allowed}
-.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--rule);font-weight:500}
+.btn.ghost{background:var(--sheet);color:var(--ink);border:1px solid var(--rule);font-weight:500}
 .btn.small{padding:7px 14px;font-size:14px}
 button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .hint{color:var(--muted);font-size:13px}
